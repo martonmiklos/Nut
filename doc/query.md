@@ -14,7 +14,7 @@ Now, _result_ contains **QList\<QSharedPointer\<Post\>\>** and can be used in co
 ## Getting first record in query
 ```cpp
 auto post = db.posts().query()
-    ->setWhete(Post::idField() == 1)
+    ->setWhere(Post::idField() == 1)
     ->first();
 
 if(post)
@@ -26,14 +26,14 @@ else
 ## Sorting result
 ```cpp
 auto posts = db.posts().query()
-    ->whete(Post::idField() == 1)
+    ->where(Post::idField() == 1)
     ->orderBy(Post::idField())
     ->toList();
 ```
 Also you can sort descending by adding **!** to field name
 ```cpp
 auto posts = db.posts().query()
-    ->whete(Post::idField() == 1)
+    ->where(Post::idField() == 1)
     ->orderBy(!Post::idField())
     ->toList();
 ```
