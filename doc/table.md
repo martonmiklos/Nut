@@ -50,6 +50,9 @@ public:
     explicit Post(QObject *tableSet = 0);
 
 };
+
+Q_DECLARE_METATYPE(Post*)
+
 ```
 
 ## Declare child table
