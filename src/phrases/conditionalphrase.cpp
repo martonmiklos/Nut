@@ -112,7 +112,8 @@ ConditionalPhrase::~ConditionalPhrase()
 ConditionalPhrase &ConditionalPhrase::operator =(const ConditionalPhrase &other)
 {
     data = other.data;
-    data->parents++;
+    if (data)
+        data->parents++;
     return *this;
 }
 

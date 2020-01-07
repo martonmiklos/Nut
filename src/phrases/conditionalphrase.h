@@ -36,7 +36,7 @@ ConditionalPhrase operator op(const QVariant &other) \
 class NUT_EXPORT ConditionalPhrase
 {
 public:
-    PhraseData *data;
+    PhraseData *data = nullptr;
 //    QSharedPointer<PhraseData> leftDataPointer;
 //    QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
