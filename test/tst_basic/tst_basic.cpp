@@ -148,7 +148,7 @@ void BasicTest::selectPosts()
 {
     auto q = db.posts()->query()
         ->join<Comment>()
-        ->orderBy(!Post::saveDateField() | Post::bodyField())
+        ->orderBy((!Post::saveDateField()) | Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
     auto posts = q->toList();
