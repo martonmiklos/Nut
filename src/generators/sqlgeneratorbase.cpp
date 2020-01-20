@@ -275,7 +275,7 @@ QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             columnSql << constraints(newTable);
         }
 
-        sql = QString("CREATE TABLE %1 \n(%2)")
+        sql = QString("CREATE TABLE IF NOT EXISTS %1 \n(%2)")
                 .arg(newTable->name(), columnSql.join(",\n"));
 
     }
@@ -473,10 +473,25 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
     QString key = model->primaryKey();
     QStringList values;
 
-    foreach (QString f, t->changedProperties())
-        if (f != key)
-            values.append(f + "='" + t->property(f.toLatin1().data()).toString()
-                          + "'");
+    foreach (QString f, t->changedProperties()) {
+        if (f != key) {
+            for (auto field : model->fields()) {
+                if (field->name == f) {
+                    if (field->type == QMetaType::Bool) {
+                        if (t->property(f.toLatin1().data()).toString().toLower() == "false"
+                                || t->property(f.toLatin1().data()).toString().toLower() == "0")
+                            values.append(f + "= 0");
+                        else
+                            values.append(f + "= 1");
+                    } else {
+                        values.append(f + "='" + _serializer->escapeString(t->property(f.toLatin1().data()).toString())
+                                      + "'");
+                    }
+                    break;
+                }
+            }
+        }
+    }
     sql = QString("UPDATE %1 SET %2 WHERE %3=%4")
               .arg(tableName, values.join(", "),
                    key, t->property(key.toUtf8().data()).toString());

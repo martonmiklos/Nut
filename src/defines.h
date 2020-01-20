@@ -94,7 +94,7 @@ public slots:                                                                   
     }
 
 #define NUT_FOREIGN_KEY_DECLARE(type, keytype, name, read, write)                     \
-    NUT_INFO(__nut_FIELD, name##Id, 0)                                             \
+    NUT_INFO(__nut_FIELD, name, 0)                                             \
     NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
     Nut::Row<type> m_##name; \
     keytype m_##name##Id; \

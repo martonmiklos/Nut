@@ -131,10 +131,10 @@ TableModel::TableModel(int typeId, const QString &tableName)
     _name = tableName;
     _className = tableMetaObject->className();
 
-//#ifdef NUT_NAMESPACE
-//    if(_className.startsWith(QT_STRINGIFY(NUT_NAMESPACE) "::"))
-//        _className = _className.replace(QT_STRINGIFY(NUT_NAMESPACE) "::", "");
-//#endif
+#ifdef NUT_NAMESPACE
+    if(_className.startsWith(QT_STRINGIFY(NUT_NAMESPACE) "::"))
+        _className = _className.mid(QStringLiteral(QT_STRINGIFY(NUT_NAMESPACE)).length() + 2);
+#endif
 
     // get fields names
     for(int j = 0; j < tableMetaObject->classInfoCount(); j++){
@@ -181,7 +181,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
         if(type == __nut_FOREIGN_KEY){
             auto *fk = new RelationModel;
             fk->slaveTable = this;
-            fk->localColumn = name + "Id";
+            fk->localColumn = name;
             fk->localProperty = name;
             fk->foreignColumn = value;
             fk->masterClassName = value;

@@ -73,12 +73,13 @@ TableModel *DatabaseModel::tableByName(const QString &tableName) const
 
 TableModel *DatabaseModel::tableByClassName(QString className) const
 {
-    QStringList l;
+#ifdef NUT_NAMESPACE
+    if(className.startsWith(QT_STRINGIFY(NUT_NAMESPACE) "::"))
+        className = className.mid(QStringLiteral(QT_STRINGIFY(NUT_NAMESPACE)).length() + 2);
+#endif
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
-
-        l.append(s->className());
-        if(s->className() == className)
+        if (s->className() == className)
             return s;
     }
 

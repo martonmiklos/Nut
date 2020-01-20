@@ -311,11 +311,24 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             }
 
             QList<FieldModel*> childFields = data.table->fields();
-            foreach (FieldModel *field, childFields)
+            foreach (FieldModel *field, childFields) {
+                if (!d->fieldPhrase.data.isEmpty()) {
+                    bool found = false;
+                    for (auto fieldP : d->fieldPhrase.data) {
+                       if (fieldP->fieldName == field->name
+                               && fieldP->className == d->className) {
+                           found = true;
+                           break;
+                       }
+                    }
+                    if (!found)
+                        continue;
+                }
                 row->setProperty(field->name.toLatin1().data(),
                                    d->database->sqlGenertor()->unescapeValue(
                                        field->type,
                                        q.value(data.table->name() + "." + field->name)));
+            }
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
