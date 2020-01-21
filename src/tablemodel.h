@@ -44,6 +44,7 @@ struct FieldModel{
     int length{0};
     QString defaultValue;
     bool notNull{false};
+    bool isEnum = false;
     bool isPrimaryKey{false};
     bool isAutoIncrement{false};
     bool isUnique{false};

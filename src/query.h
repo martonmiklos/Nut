@@ -235,10 +235,8 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         levels.append(data);
     }; // end add_table lambda
 
-
     // add the current table as first
     add_table(0, d->database->model().tableByName(d->tableName));
-
     // this fills up the levels based on the table relations
     for (int i = 0; i < d->relations.count(); ++i) {
         RelationModel *rel = d->relations[i];
@@ -330,10 +328,10 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                     if (!found)
                         continue;
                 }
-                row->setProperty(field->name.toLatin1().data(),
+                row->setProperty(field->name.toLatin1().data(), 
                                  d->database->sqlGenertor()->unescapeValue(
-                                     field->type,
-                                     q.value(currentLevel.table->name() + "." + field->name)));
+                                    field->type, q.value(currentLevel.table->name() + "." + field->name)
+                                ));
             }
 
 

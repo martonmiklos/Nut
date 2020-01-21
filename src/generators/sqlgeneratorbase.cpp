@@ -452,7 +452,14 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
         if (f == key)
             continue;
 
-        values.append(escapeValue(t->property(f.toLatin1().data())));
+        auto field = model->field(f);
+        if ((!field->notNull && field->isEnum
+                && t->property(f.toLatin1().data()).toString().isEmpty())
+                || (!field->notNull && t->property(f.toLatin1().data()).toInt() == 0)) {
+            values.append("NULL");
+        } else {
+            values.append(escapeValue(t->property(f.toLatin1().data())));
+        }
 
         if (changedPropertiesText != "")
             changedPropertiesText.append(", ");
@@ -477,15 +484,21 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
         if (f != key) {
             for (auto field : model->fields()) {
                 if (field->name == f) {
-                    if (field->type == QMetaType::Bool) {
-                        if (t->property(f.toLatin1().data()).toString().toLower() == "false"
-                                || t->property(f.toLatin1().data()).toString().toLower() == "0")
-                            values.append(f + "= 0");
-                        else
-                            values.append(f + "= 1");
+                    if ((!field->notNull && field->isEnum
+                            && t->property(f.toLatin1().data()).toString().isEmpty())
+                            || (!field->notNull && t->property(f.toLatin1().data()).toInt() == 0)) {
+                        values.append(f + " = NULL");
                     } else {
-                        values.append(f + "='" + _serializer->escapeString(t->property(f.toLatin1().data()).toString())
-                                      + "'");
+                        if (field->type == QMetaType::Bool) {
+                            if (t->property(f.toLatin1().data()).toString().toLower() == "false"
+                                    || t->property(f.toLatin1().data()).toString().toLower() == "0")
+                                values.append(f + "= 0");
+                            else
+                                values.append(f + "= 1");
+                        } else {
+                            values.append(f + "='" + _serializer->escapeString(t->property(f.toLatin1().data()).toString())
+                                          + "'");
+                        }
                     }
                     break;
                 }

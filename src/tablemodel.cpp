@@ -210,6 +210,8 @@ TableModel::TableModel(int typeId, const QString &tableName)
             f->isAutoIncrement = true;
         else if (type == __nut_UNIQUE)
             f->isUnique = true;
+        else if (type == __nut_ENUM)
+            f->isEnum = true;
         else if (type == __nut_DISPLAY)
             f->displayName = value.mid(1, value.length() - 2);
         else if (type == __nut_PRIMARY_KEY_AI) {
@@ -364,6 +366,7 @@ FieldModel::FieldModel(const QJsonObject &json)
     isPrimaryKey = json.value(__nut_PRIMARY_KEY).toBool();
     defaultValue = json.value(__nut_DEFAULT_VALUE).toString();
     isUnique = json.value(__nut_UNIQUE).toBool();
+    isEnum = json.value(__nut_ENUM).toBool();
 }
 
 QJsonObject FieldModel::toJson() const
@@ -376,6 +379,7 @@ QJsonObject FieldModel::toJson() const
     fieldObj.insert(__nut_AUTO_INCREMENT, isAutoIncrement);
     fieldObj.insert(__nut_PRIMARY_KEY, isPrimaryKey);
     fieldObj.insert(__nut_DEFAULT_VALUE, defaultValue);
+    fieldObj.insert(__nut_ENUM, isEnum);
     return fieldObj;
 }
 
