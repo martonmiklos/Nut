@@ -171,6 +171,7 @@ public slots: \
 #define NUT_LEN(field, len)                 NUT_INFO(__nut_LEN, field, len)
 #define NUT_DEFAULT_VALUE(x, n)             NUT_INFO(__nut_DEFAULT_VALUE, x, n)
 #define NUT_NOT_NULL(x)                     NUT_INFO(__nut_NOT_NULL, x, 1)
+#define NUT_ENUM(x)  NUT_INFO(__nut_ENUM, x, 1)
 #define NUT_INDEX(name, field, order)
 
 NUT_BEGIN_NAMESPACE

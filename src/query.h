@@ -177,7 +177,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
                 d->relations, d->skip, d->take);
-
+    //qWarning() << d->sql.replace("\\\"", "\"");
     QSqlQuery q = d->database->exec(d->sql);
     if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
@@ -189,14 +189,15 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     foreach (RelationModel *rel, d->relations)
         relatedTables << rel->slaveTable << rel->masterTable;
 
+    // level is basically a table object which is affected by the query
     struct LevelData{
         QList<int> masters;
         QList<int> slaves;
         QList<QString> masterFields;
         QString keyFiledname;
         QVariant lastKeyValue;
-        TableModel *table;
-        Table *lastRow;
+        TableModel *table = nullptr;
+        Row<Table> lastRow;
     };
     QVector<LevelData> levels;
     QSet<QString> importedTables;
@@ -231,13 +232,16 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         }
 
         levels.append(data);
-    };
+    }; // end add_table lambda
+
+    // this fills up the levels based on the table relations
     for (int i = 0; i < d->relations.count(); ++i) {
         RelationModel *rel = d->relations[i];
         add_table(i, rel->masterTable);
         add_table(i, rel->slaveTable);
     }
 
+    // if no levels filled by relations add a level for the current table
     if (!importedTables.count()) {
         LevelData data;
         data.table = d->database->model().tableByName(d->tableName);
@@ -247,49 +251,44 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         levels.append(data);
     }
 
+    // create a checked flag for each level no idea why this flag is not added to level
     QVector<bool> checked;
     checked.reserve(levels.count());
     for (int i = 0; i < levels.count(); ++i)
         checked.append(false);
 
     while (q.next()) {
+        // loop on records
         checked.fill(false);
 
         int p = levels.count();
         int n = -1;
 
         while (p) {
+            // loop on affected tables
             //            Q_ASSERT(p != lastP);
             //            if (p == lastP)
             //                qFatal("NULL Loop detected");
-
+            Row<Table> row;
             ++n;
             n = n % levels.count();
             if (checked[n])
                 continue;
-            LevelData &data = levels[n];
+            LevelData &currentLevel = levels[n];
 
             // check if key value is changed
-            if (data.lastKeyValue == q.value(data.keyFiledname)) {
+            if (currentLevel.lastKeyValue == q.value(currentLevel.keyFiledname)) {
                 --p;
 //                qDebug() << "key os not changed for" << data.keyFiledname;
                 continue;
             }
 
-            // check if master if current table has processed
-            foreach (int m, data.masters)
-                if (!checked[m]) {
-//                    qDebug() << "row is checked";
-                    continue;
-                }
-
             checked[n] = true;
             --p;
-            data.lastKeyValue = q.value(data.keyFiledname);
+            currentLevel.lastKeyValue = q.value(currentLevel.keyFiledname);
 
-            //create table row
-            Row<Table> row;
-            if (data.table->className() == d->className) {
+            if (currentLevel.table->className() == d->className) {
+                //create a row for the current table
                 row = Nut::create<T>();
 #ifdef NUT_SHARED_POINTER
                 returnList.append(row.objectCast<T>());
@@ -297,21 +296,21 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 returnList.append(dynamic_cast<T*>(table));
 #endif
                 d->tableSet->add(row);
-
             } else {
+                // create row for a related table
                 Table *table;
                 const QMetaObject *childMetaObject
-                        = QMetaType::metaObjectForType(data.table->typeId());
+                        = QMetaType::metaObjectForType(currentLevel.table->typeId());
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
-//                table = dynamic_cast<Table *>(QMetaType::create(data.table->typeId()));
                 if (!table)
                     qFatal("Could not create instance of %s",
-                           qPrintable(data.table->name()));
+                           qPrintable(currentLevel.table->name()));
                 row = createFrom(table);
             }
 
-            QList<FieldModel*> childFields = data.table->fields();
+            QList<FieldModel*> childFields = currentLevel.table->fields();
             foreach (FieldModel *field, childFields) {
+                // go through all fields of the current level assing value to them
                 if (!d->fieldPhrase.data.isEmpty()) {
                     bool found = false;
                     for (auto fieldP : d->fieldPhrase.data) {
@@ -324,16 +323,22 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                     if (!found)
                         continue;
                 }
+                qWarning() << field->name.toLatin1().data()
+                           << q.value(currentLevel.table->name() + "." + field->name)
+                           << d->database->sqlGenertor()->unescapeValue(
+                                  field->type,
+                                  q.value(currentLevel.table->name() + "." + field->name))
+                            << field->type;
                 row->setProperty(field->name.toLatin1().data(),
                                    d->database->sqlGenertor()->unescapeValue(
                                        field->type,
-                                       q.value(data.table->name() + "." + field->name)));
+                                       q.value(currentLevel.table->name() + "." + field->name)));
             }
 
-            for (int i = 0; i < data.masters.count(); ++i) {
-                int master = data.masters[i];
-                auto tableset = levels[master].lastRow->childTableSet(
-                            data.table->className());
+
+            for (int i = 0; i < currentLevel.masters.count(); ++i) {
+                int master = currentLevel.masters[i];
+                auto tableset = levels[master].lastRow.data()->childTableSet(currentLevel.table->className());
                 tableset->add(row);
             }
 
@@ -342,7 +347,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             row->clear();
 
             //set last created row
-            data.lastRow = row.data();
+            levels[n].lastRow = row;
         } //while
     } // while
 
