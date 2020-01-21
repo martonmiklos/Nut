@@ -196,7 +196,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         QString keyFiledname;
         QVariant lastKeyValue;
         TableModel *table;
-        Table *lastRow;
+        Row<Table> lastRow;
     };
     QVector<LevelData> levels;
     QSet<QString> importedTables;
@@ -319,7 +319,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
-                auto tableset = levels[master].lastRow->childTableSet(
+                auto tableset = levels[master].lastRow.data()->childTableSet(
                             data.table->className());
                 tableset->add(row);
             }
@@ -329,7 +329,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             row->clear();
 
             //set last created row
-            data.lastRow = row.data();
+            data.lastRow = row;
         } //while
     } // while
 
