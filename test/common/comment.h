@@ -21,8 +21,9 @@ class Comment : public Table
     NUT_DECLARE_FIELD(QDateTime, saveDate, saveDate, setSaveDate)
     NUT_DECLARE_FIELD(qreal, point, point, setPoint)
 
-    NUT_FOREIGN_KEY_DECLARE(Post, int, post, post, setPost)
-    NUT_FOREIGN_KEY_DECLARE(User, int, author, author, setAuthor)
+    // NUT_FOREIGN_KEY_DECLARE(type, keytype, keyname, keywrite, name, read, write)
+    NUT_FOREIGN_KEY_DECLARE(Post, int, postId, setPostId, post, post, setPost)
+    NUT_FOREIGN_KEY_DECLARE(User, int, authorId, setAuthorId, author, author, setAuthor)
 
 public:
     Q_INVOKABLE explicit Comment(QObject *parentTableSet = nullptr);

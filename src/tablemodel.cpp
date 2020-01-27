@@ -181,8 +181,9 @@ TableModel::TableModel(int typeId, const QString &tableName)
         if(type == __nut_FOREIGN_KEY){
             auto *fk = new RelationModel;
             fk->slaveTable = this;
-            fk->localColumn = name;
-            fk->localProperty = name;
+            QStringList parts = name.split("::");
+            fk->localColumn = parts.first();
+            fk->localProperty = parts.at(1);
             fk->foreignColumn = value;
             fk->masterClassName = value;
             _foreignKeys.append(fk);
@@ -401,7 +402,7 @@ bool operator ==(const RelationModel &l, const RelationModel &r)
 {
     return r.foreignColumn == l.foreignColumn
             && r.localColumn == l.localColumn
-            && r.localProperty == l.localColumn
+            && r.localProperty == l.localProperty
             && r.masterClassName == l.masterClassName;
 }
 

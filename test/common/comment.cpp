@@ -7,5 +7,5 @@ Comment::Comment(QObject *parent) : Table(parent)
 
 }
 
-NUT_FOREIGN_KEY_IMPLEMENT(Comment, Post, int, post, post, setPost)
-NUT_FOREIGN_KEY_IMPLEMENT(Comment, User, int, author, author, setAuthor)
+NUT_FOREIGN_KEY_IMPLEMENT(Comment, Post, int, postId, setPostId, post, post, setPost)
+NUT_FOREIGN_KEY_IMPLEMENT(Comment, User, int, authorId, setAuthorId, author, author, setAuthor)

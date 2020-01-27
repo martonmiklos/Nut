@@ -98,7 +98,7 @@ public:
 
     //data mailpulation
     int update(const AssignmentPhraseList &ph);
-//    int insert(const AssignmentPhraseList &ph);
+    //    int insert(const AssignmentPhraseList &ph);
     int remove();
 
     QSqlQueryModel *toModel();
@@ -169,7 +169,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 template <class T>
 Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 {
-    Q_UNUSED(count);
+    Q_UNUSED(count)
     Q_D(Query);
     RowList<T> returnList;
     d->select = "*";
@@ -201,6 +201,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     };
     QVector<LevelData> levels;
     QSet<QString> importedTables;
+
     auto add_table = [&](int i, TableModel* table) {
         if (importedTables.contains(table->name()))
             return;
@@ -234,21 +235,15 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         levels.append(data);
     }; // end add_table lambda
 
+
+    // add the current table as first
+    add_table(0, d->database->model().tableByName(d->tableName));
+
     // this fills up the levels based on the table relations
     for (int i = 0; i < d->relations.count(); ++i) {
         RelationModel *rel = d->relations[i];
         add_table(i, rel->masterTable);
         add_table(i, rel->slaveTable);
-    }
-
-    // if no levels filled by relations add a level for the current table
-    if (!importedTables.count()) {
-        LevelData data;
-        data.table = d->database->model().tableByName(d->tableName);
-        data.keyFiledname = d->tableName + "." + data.table->primaryKey();
-        data.lastKeyValue = QVariant();
-
-        levels.append(data);
     }
 
     // create a checked flag for each level no idea why this flag is not added to level
@@ -279,7 +274,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             // check if key value is changed
             if (currentLevel.lastKeyValue == q.value(currentLevel.keyFiledname)) {
                 --p;
-//                qDebug() << "key os not changed for" << data.keyFiledname;
+                //                qDebug() << "key os not changed for" << data.keyFiledname;
                 continue;
             }
 
@@ -306,33 +301,39 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                     qFatal("Could not create instance of %s",
                            qPrintable(currentLevel.table->name()));
                 row = createFrom(table);
+
+                if (levels[0].lastRow) {
+                    foreach (RelationModel *rel, d->relations) {
+                        if (rel->slaveTable->className() == levels[0].table->className()
+                                && rel->masterTable->className() == currentLevel.table->className()) {
+                            // relation found
+                            levels[0].lastRow.data()->setProperty(rel->localProperty.toUtf8().constData(),
+                                                                              QVariant::fromValue(row));
+                            break;
+                        }
+                    }
+                }
             }
 
             QList<FieldModel*> childFields = currentLevel.table->fields();
             foreach (FieldModel *field, childFields) {
-                // go through all fields of the current level assing value to them
+                // go through all fields of the current level assign value to them
                 if (!d->fieldPhrase.data.isEmpty()) {
                     bool found = false;
                     for (auto fieldP : d->fieldPhrase.data) {
-                       if (fieldP->fieldName == field->name
-                               && fieldP->className == d->className) {
-                           found = true;
-                           break;
-                       }
+                        if (fieldP->fieldName == field->name
+                                && fieldP->className == d->className) {
+                            found = true;
+                            break;
+                        }
                     }
                     if (!found)
                         continue;
                 }
-                qWarning() << field->name.toLatin1().data()
-                           << q.value(currentLevel.table->name() + "." + field->name)
-                           << d->database->sqlGenertor()->unescapeValue(
-                                  field->type,
-                                  q.value(currentLevel.table->name() + "." + field->name))
-                            << field->type;
                 row->setProperty(field->name.toLatin1().data(),
-                                   d->database->sqlGenertor()->unescapeValue(
-                                       field->type,
-                                       q.value(currentLevel.table->name() + "." + field->name)));
+                                 d->database->sqlGenertor()->unescapeValue(
+                                     field->type,
+                                     q.value(currentLevel.table->name() + "." + field->name)));
             }
 
 
@@ -481,7 +482,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::insert(const AssignmentPhraseList &p)
             ->insertCommand(d->tableName, p);
     QSqlQuery q = d->database->exec(d->sql);
 
-   return q.lastInsertId();
+    return q.lastInsertId();
 }
 
 template <class T>
@@ -497,7 +498,7 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
 
     if (!rel) {
         qDebug() << "No relation between" << d->className
-                << "and" << className;
+                 << "and" << className;
         return this;
     }
 

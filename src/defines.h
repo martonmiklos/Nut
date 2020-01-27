@@ -26,6 +26,7 @@
 #include "defines_p.h"
 #include "qglobal.h"
 
+#include <QDebug>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
@@ -38,7 +39,7 @@
 #endif
 
 #define NUT_INFO(type, name, value)                                            \
-    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value,                           \
+    Q_CLASSINFO(__nut_NAME_PERFIX type "::" #name,                           \
                 type "\n" #name "\n" #value)
 
 #define NUT_INFO_STRING(type, name, value)                                     \
@@ -93,46 +94,8 @@ public slots:                                                                   
         m_##name = name;                                                       \
     }
 
-#define NUT_FOREIGN_KEY_DECLARE(type, keytype, name, read, write)                     \
-    NUT_INFO(__nut_FIELD, name, 0)                                             \
-    NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
-    Nut::Row<type> m_##name; \
-    keytype m_##name##Id; \
-    Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                                \
-    Q_PROPERTY(keytype name##Id READ read##Id WRITE write##Id)                                \
-public:                                                                        \
-    Nut::Row<type> read() const;                          \
-    keytype read##Id() const;                                                   \
-    static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)& name##Id ## Field(){             \
-        static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>) f =                       \
-                NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)                          \
-                        (staticMetaObject.className(), #name);                 \
-        return f;                                                              \
-    }                                                                          \
-public slots: \
-    void write(Nut::Row<type> name); \
-    void write##Id(keytype name##Id);
-
-#define NUT_FOREIGN_KEY_IMPLEMENT(class, type, keytype, name, read, write)                     \
-    \
-    Nut::Row<type> class::read() const { return m_##name ; }                          \
-    void class::write(Nut::Row<type> name){                                           \
-        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
-        m_##name = name;                                                       \
-        m_##name##Id = name->primaryValue().value<keytype>(); \
-    } \
-    \
-    keytype class::read##Id() const{                                                         \
-        if (m_##name) \
-            return m_##name->primaryValue().value<keytype>(); \
-        return m_##name##Id;                                                       \
-    }                                                                          \
-    void class::write##Id(keytype name##Id){                                                     \
-        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
-        m_##name##Id = name##Id;                                                       \
-        m_##name = nullptr; \
-        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
-    }
+#define GENERATE_FOREIGN_KEY_PROPERTY(keyname, name) \
+    keyname##::##name
 
 
 #define NUT_DECLARE_CHILD_TABLE(type, n)                                       \

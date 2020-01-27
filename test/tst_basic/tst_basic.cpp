@@ -151,20 +151,20 @@ void BasicTest::selectPosts()
         ->orderBy((!Post::saveDateField()) | Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
-    auto posts = q->toList();
-    post = posts.at(0);
-    post->setBody("");
+    auto post = q->toList().first();
+    //post = posts.at(0);
+    //post->setBody("");
 
     PRINT(posts.length());
-    PRINT(posts.at(0)->comments()->length());
-    QTEST_ASSERT(posts.length() == 1);
-    qDebug() << posts.at(0)->comments()->length();
-    QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
-    QTEST_ASSERT(posts.at(0)->title() == "post title");
+    PRINT(post->comments()->length());
+    //QTEST_ASSERT(posts.length() == 1);
+    qDebug() << post->comments()->length();
+    QTEST_ASSERT(post->comments()->length() == 3);
+    QTEST_ASSERT(post->title() == "post title");
 
-    QTEST_ASSERT(posts.at(0)->comments()->at(0)->message() == "comment #0");
-    QTEST_ASSERT(posts.at(0)->comments()->at(1)->message() == "comment #1");
-    QTEST_ASSERT(posts.at(0)->comments()->at(2)->message() == "comment #2");
+    QTEST_ASSERT(post->comments()->at(0)->message() == "comment #0");
+    QTEST_ASSERT(post->comments()->at(1)->message() == "comment #1");
+    QTEST_ASSERT(post->comments()->at(2)->message() == "comment #2");
     db.cleanUp();
 }
 
@@ -227,17 +227,17 @@ void BasicTest::testDate()
 
 void BasicTest::join()
 {
-//    TIC();
-//    auto q = db.comments()->query()
-//            ->join<User>()
-//            ->join<Post>();
+    TIC();
+    auto q = db.comments()->query()
+            ->join<Post>();
 
-//    auto comments = q->toList();
+    auto comment = q->toList().first();
 
-//    TOC();
-//    QTEST_ASSERT(comments.length());
-//    QTEST_ASSERT(comments[0]->author());
-//    QTEST_ASSERT(comments[0]->author()->username() == "admin");
+    TOC();
+    QTEST_ASSERT(comment);
+    QTEST_ASSERT(comment->post());
+    /*QTEST_ASSERT(comment->author());
+    QTEST_ASSERT(comment->author()->username() == "admin");*/
 }
 
 
