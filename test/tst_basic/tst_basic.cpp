@@ -225,19 +225,19 @@ void BasicTest::testDate()
     QTEST_ASSERT(q->saveDate() == d);
 }
 
-void BasicTest::join()
+void BasicTest::join() 
 {
-//    TIC();
-//    auto q = db.comments()->query()
-//            ->join<User>()
-//            ->join<Post>();
+    TIC(); 
+    auto q = db.comments()->query()
+            ->join<User>()
+            ->join<Post>();
 
-//    auto comments = q->toList();
+    auto comments = q->toList();
 
-//    TOC();
-//    QTEST_ASSERT(comments.length());
-//    QTEST_ASSERT(comments[0]->author());
-//    QTEST_ASSERT(comments[0]->author()->username() == "admin");
+    TOC();
+    QTEST_ASSERT(comments.length());
+    QTEST_ASSERT(comments[0]->author());
+    QTEST_ASSERT(comments[0]->author()->username() == "admin");
 }
 
 
