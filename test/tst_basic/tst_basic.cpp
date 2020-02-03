@@ -225,7 +225,7 @@ void BasicTest::testDate()
     QTEST_ASSERT(q->saveDate() == d);
 }
 
-void BasicTest::join() 
+void BasicTest::join()  
 {
     TIC(); 
     auto q = db.comments()->query()
