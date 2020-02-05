@@ -55,6 +55,16 @@ template <class T>
     Q_DECLARE_PRIVATE(Query)
 
     bool m_autoDelete;
+    // level is basically a table object which is affected by the query
+    struct LevelData{
+        QList<int> masters;
+        QList<int> slaves;
+        QList<QString> masterFields;
+        QString keyFiledname;
+        QVariant lastKeyValue;
+        TableModel *table = nullptr;
+        Row<Table> lastRow;
+    };
 
 public:
     explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
@@ -107,6 +117,9 @@ public:
 
     //debug purpose
     QString sqlCommand() const;
+
+private:
+    void fillRowProperties(Row<Table> row, LevelData &currentLevel, QSqlQuery &q);
 };
 
 template<typename T>
@@ -166,6 +179,32 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
     delete d;
 }
 
+template<class T>
+Q_OUTOFLINE_TEMPLATE void Query<T>::fillRowProperties(Row<Table> row, LevelData &currentLevel, QSqlQuery &q)
+{
+    Q_D(Query);
+    QList<FieldModel*> childFields = currentLevel.table->fields();
+    foreach (FieldModel *field, childFields) {
+        // go through all fields of the current level assign value to them
+        if (!d->fieldPhrase.data.isEmpty()) {
+            bool found = false;
+            for (auto fieldP : d->fieldPhrase.data) {
+                if (fieldP->fieldName == field->name
+                        && fieldP->className == d->className) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                continue;
+        }
+        row->setProperty(field->name.toLatin1().data(),
+                         d->database->sqlGenertor()->unescapeValue(
+                            field->type, q.value(currentLevel.table->name() + "." + field->name)
+                        ));
+    }
+}
+
 template <class T>
 Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 {
@@ -189,15 +228,6 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     foreach (RelationModel *rel, d->relations)
         relatedTables << rel->slaveTable << rel->masterTable;
 
-    struct LevelData{
-        QList<int> masters;
-        QList<int> slaves;
-        QList<QString> masterFields;
-        QString keyFiledname;
-        QVariant lastKeyValue;
-        TableModel *table;
-        Row<Table> lastRow;
-    };
     QVector<LevelData> levels;
     QSet<QString> importedTables;
     auto add_table = [&](int i, TableModel* table) {
@@ -232,19 +262,13 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
         levels.append(data);
     };
+
+    // Always add the reference to the query's base table as first item
+    add_table(0, d->database->model().tableByName(d->tableName));
     for (int i = 0; i < d->relations.count(); ++i) {
         RelationModel *rel = d->relations[i];
         add_table(i, rel->masterTable);
         add_table(i, rel->slaveTable);
-    }
-
-    if (!importedTables.count()) {
-        LevelData data;
-        data.table = d->database->model().tableByName(d->tableName);
-        data.keyFiledname = d->tableName + "." + data.table->primaryKey();
-        data.lastKeyValue = QVariant();
-
-        levels.append(data);
     }
 
     QVector<bool> checked;
@@ -290,6 +314,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             //create table row
             Row<Table> row;
             if (data.table->className() == d->className) {
+                // create a row for the current table
                 row = Nut::create<T>();
 #ifdef NUT_SHARED_POINTER
                 returnList.append(row.objectCast<T>());
@@ -297,8 +322,9 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 returnList.append(dynamic_cast<T*>(table));
 #endif
                 d->tableSet->add(row);
-
+                fillRowProperties(row, data, q);
             } else {
+                // create row for a related table
                 Table *table;
                 const QMetaObject *childMetaObject
                         = QMetaType::metaObjectForType(data.table->typeId());
@@ -308,19 +334,29 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
                 row = createFrom(table);
+                // fill up the  fields of the related row before attaching to the parent
+                // because the parent's setter would overwrite the parent's foreign key
+                // with default initialized primary key of the current (related one)
+                fillRowProperties(row, data, q);
+                if (levels[0].lastRow) {
+                    // assign the current row (belongs to a joined table) to the query's base table
+                    foreach (RelationModel *rel, d->relations) {
+                        if (rel->slaveTable->className() == levels[0].table->className()
+                                && rel->masterTable->className() == data.table->className()) {
+                            // relation found -> assign the row to the query's base table proper field
+                            QString propertyName = "_" + rel->localProperty;
+                            levels[0].lastRow.data()->setProperty(
+                                        propertyName.toUtf8().constData(),
+                                        QVariant::fromValue(row));
+                            break;
+                        }
+                    }
+                }
             }
-
-            QList<FieldModel*> childFields = data.table->fields();
-            foreach (FieldModel *field, childFields)
-                row->setProperty(field->name.toLatin1().data(),
-                                   d->database->sqlGenertor()->unescapeValue(
-                                       field->type,
-                                       q.value(data.table->name() + "." + field->name)));
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
-                auto tableset = levels[master].lastRow.data()->childTableSet(
-                            data.table->className());
+                auto tableset = levels[master].lastRow.data()->childTableSet(data.table->className());
                 tableset->add(row);
             }
 
