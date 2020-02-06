@@ -37,6 +37,8 @@ public:
 //    QString phrase(const PhraseData *d) const;
     //    QString selectCommand(AgregateType t, QString agregateArg, QString tableName, QList<WherePhrase> &wheres, QList<WherePhrase> &orders, QList<RelationModel *> joins, int skip, int take);
     QString createConditionalPhrase(const PhraseData *d) const override;
+    void appendSkipTake(QString &sql, int skip, int take) override;
+
 private:
     bool readInsideParentese(QString &text, QString &out);
 };

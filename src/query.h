@@ -169,14 +169,13 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 template <class T>
 Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 {
-    Q_UNUSED(count);
     Q_D(Query);
     RowList<T> returnList;
     d->select = "*";
 
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
-                d->relations, d->skip, d->take);
+                d->relations, d->skip, count);
 
     QSqlQuery q = d->database->exec(d->sql);
     if (q.lastError().isValid()) {
@@ -372,7 +371,6 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Row<T> Query<T>::first()
 {
     skip(0);
-    take(1);
     RowList<T> list = toList(1);
 
     if (list.count())

@@ -36,6 +36,7 @@ private slots:
     void selectPostIds();
     void updatePostOnTheFly();
     void testDate();
+    void testLimitedQuery();
     void selectWithInvalidRelation();
     void modifyPost();
     void emptyDatabase();
