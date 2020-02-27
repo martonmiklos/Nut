@@ -453,9 +453,11 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
             continue;
 
         auto field = model->field(f);
-        if ((!field->notNull && field->isEnum
+        if ((field->isNull() && field->isEnum
                 && t->property(f.toLatin1().data()).toString().isEmpty())
-                || (!field->notNull && t->property(f.toLatin1().data()).toInt() == 0)) {
+                || (field->isNull()
+                    && field->type == QMetaType::Int
+                    && t->property(f.toLatin1().data()).toInt() == 0)) {
             values.append("NULL");
         } else {
             values.append(escapeValue(t->property(f.toLatin1().data())));
@@ -469,7 +471,7 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
               .arg(tableName, changedPropertiesText, values.join(", "));
 
     removeTableNames(sql);
-
+    qWarning() << sql;
     return sql;
 }
 
@@ -484,9 +486,12 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
         if (f != key) {
             for (auto field : model->fields()) {
                 if (field->name == f) {
-                    if ((!field->notNull && field->isEnum
-                            && t->property(f.toLatin1().data()).toString().isEmpty())
-                            || (!field->notNull && t->property(f.toLatin1().data()).toInt() == 0)) {
+                    if ((field->isNull()
+                         && field->isEnum
+                         && t->property(f.toLatin1().data()).toString().isEmpty())
+                            || (field->isNull()
+                                && field->type == QMetaType::Int
+                                && t->property(f.toLatin1().data()).toInt() == 0)) {
                         values.append(f + " = NULL");
                     } else {
                         if (field->type == QMetaType::Bool) {
@@ -510,7 +515,7 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
                    key, t->property(key.toUtf8().data()).toString());
 
     removeTableNames(sql);
-
+    qWarning() << sql;
     return sql;
 }
 
