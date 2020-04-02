@@ -225,6 +225,12 @@ void BasicTest::testDate()
     QTEST_ASSERT(q->saveDate() == d);
 }
 
+void BasicTest::testLimitedQuery()
+{
+    auto comments = db.comments()->query()->toList(2);
+    QTEST_ASSERT(comments.length() == 2);
+}
+
 void BasicTest::join()
 {
 //    TIC();

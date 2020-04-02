@@ -401,7 +401,7 @@ bool operator ==(const RelationModel &l, const RelationModel &r)
 {
     return r.foreignColumn == l.foreignColumn
             && r.localColumn == l.localColumn
-            && r.localProperty == l.localColumn
+            && r.localProperty == l.localProperty
             && r.masterClassName == l.masterClassName;
 }
 

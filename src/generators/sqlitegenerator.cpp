@@ -187,10 +187,13 @@ QStringList SqliteGenerator::diff(TableModel *oldTable, TableModel *newTable)
 }
 void SqliteGenerator::appendSkipTake(QString &sql, int skip, int take)
 {
-    if (take != -1 && skip != -1)
+    if (take > 0 && skip > 0) {
         sql.append(QString(" LIMIT %1 OFFSET %2")
-                       .arg(take)
+                   .arg(take)
                    .arg(skip));
+    } else if (take > 0) {
+        sql.append(QString(" LIMIT %1").arg(take));
+    }
 }
 
 QString SqliteGenerator::primaryKeyConstraint(const TableModel *table) const

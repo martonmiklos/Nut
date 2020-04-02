@@ -19,6 +19,7 @@
 *.qbs.user
 *.qbs.user.*
 *.moc
+moc_*.h
 moc_*.cpp
 qrc_*.cpp
 ui_*.h
@@ -34,3 +35,19 @@ Makefile*
 *.qmlproject.user.*
 
 build
+
+# KDE show hidden folder marker
+.directory
+
+
+# built tests executables
+test/tst_basic/tst_basic*
+test/tst_benckmark/tst_benchmark*
+test/tst_datatypes/tst_datatypes*
+test/tst_datetime/tst_datetime*
+test/tst_generators/target_wrapper.sh
+test/tst_generators/tst_generators*
+test/tst_json/tst_upgrades*
+test/tst_phrases/tst_phrases*
+test/tst_quuid/tst_uuid*
+test/tst_upgrades/tst_upgrades*

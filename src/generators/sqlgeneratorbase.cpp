@@ -617,8 +617,6 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
                                         const int skip,
                                         const int take)
 {
-    Q_UNUSED(skip);
-    Q_UNUSED(take);
     QStringList joinedOrders;
     QString selectText = agregateText(t, agregateArg);
     QString whereText = createConditionalPhrase(where.data);
