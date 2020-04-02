@@ -61,18 +61,19 @@ public:
         Min,
         Max,
         Average,
-        SignleField
+        SingleField,
+        Sum
     };
 
     explicit SqlGeneratorBase(Database *parent);
     virtual ~SqlGeneratorBase() = default;
 
     virtual bool supportPrimaryKey(const QMetaType::Type &type) {
-        Q_UNUSED(type);
+        Q_UNUSED(type)
         return true;
     }
     virtual bool supportAutoIncrement(const QMetaType::Type &type) {
-        Q_UNUSED(type);
+        Q_UNUSED(type)
         return true;
     }
 

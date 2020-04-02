@@ -545,7 +545,10 @@ QString SqlGeneratorBase::agregateText(const AgregateType &t,
     case Count:
         return "COUNT(" + arg + ")";
 
-    case SignleField:
+    case Sum:
+        return "SUM(" + arg + ")";
+
+    case SingleField:
         return arg;
     }
     return QString(); // never reach
