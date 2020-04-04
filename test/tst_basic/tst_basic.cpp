@@ -170,11 +170,23 @@ void BasicTest::selectPosts()
 
 void BasicTest::selectScoreAverage()
 {
-    auto a = db.scores()->query()
+    auto avg = db.scores()->query()
             ->join<Post>()
             ->setWhere(Post::idField() == 1)
             ->average(Score::scoreField());
-    qDebug() << a;
+    QCOMPARE(avg, 2);
+}
+
+void BasicTest::selectScoreSum()
+{
+    auto sum = db.scores()->query()->sum(Score::scoreField());
+    QCOMPARE(sum, 20);
+}
+
+void BasicTest::selectScoreCount()
+{
+    auto count = db.scores()->query()->count();
+    QCOMPARE(count, 10);
 }
 
 void BasicTest::selectFirst()
@@ -223,6 +235,12 @@ void BasicTest::testDate()
 
     qDebug() << q->saveDate() << d;
     QTEST_ASSERT(q->saveDate() == d);
+}
+
+void BasicTest::testLimitedQuery()
+{
+    auto comments = db.comments()->query()->toList(2);
+    QTEST_ASSERT(comments.length() == 2);
 }
 
 void BasicTest::join()

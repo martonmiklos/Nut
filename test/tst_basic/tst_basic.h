@@ -31,11 +31,14 @@ private slots:
     void join();
     void selectPosts();
     void selectScoreAverage();
+    void selectScoreSum();
+    void selectScoreCount();
     void selectFirst();
     void selectPostsWithoutTitle();
     void selectPostIds();
     void updatePostOnTheFly();
     void testDate();
+    void testLimitedQuery();
     void selectWithInvalidRelation();
     void modifyPost();
     void emptyDatabase();

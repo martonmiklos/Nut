@@ -345,4 +345,15 @@ QString MySqlGenerator::createConditionalPhrase(const PhraseData *d) const
     return SqlGeneratorBase::createConditionalPhrase(d);
 }
 
+void MySqlGenerator::appendSkipTake(QString &sql, int skip, int take)
+{
+    if (take > 0 && skip > 0) {
+        sql.append(QString(" LIMIT %1 OFFSET %2")
+                   .arg(take)
+                   .arg(skip));
+    } else if (take > 0) {
+        sql.append(QString(" LIMIT %1").arg(take));
+    }
+}
+
 NUT_END_NAMESPACE
