@@ -198,7 +198,7 @@ void SqliteGenerator::appendSkipTake(QString &sql, int skip, int take)
 
 QString SqliteGenerator::primaryKeyConstraint(const TableModel *table) const
 {
-    Q_UNUSED(table);
+    Q_UNUSED(table)
     return QString();
 //    QString sql = QString("CONSTRAINT pk_%1 PRIMARY KEY (%2)")
 //            .arg(table->name())

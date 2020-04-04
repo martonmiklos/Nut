@@ -525,8 +525,8 @@ void Database::databaseCreated()
 
 void Database::databaseUpdated(int oldVersion, int newVersion)
 {
-    Q_UNUSED(oldVersion);
-    Q_UNUSED(newVersion);
+    Q_UNUSED(oldVersion)
+    Q_UNUSED(newVersion)
 }
 
 

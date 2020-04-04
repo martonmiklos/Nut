@@ -52,13 +52,13 @@ SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent) 
 
 int SqlModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return d->rows.count();
 }
 
 int SqlModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return d->model->fields().count();
 }
 

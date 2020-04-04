@@ -78,7 +78,7 @@ SqlGeneratorBase::SqlGeneratorBase(Database *parent)
 
 QString SqlGeneratorBase::masterDatabaseName(QString databaseName)
 {
-    Q_UNUSED(databaseName);
+    Q_UNUSED(databaseName)
     return QString();
 }
 
@@ -152,7 +152,7 @@ QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
 
 QStringList SqlGeneratorBase::constraints(TableModel *table)
 {
-    Q_UNUSED(table);
+    Q_UNUSED(table)
     return QStringList();
 }
 
@@ -569,8 +569,8 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
                                         const int skip,
                                         const int take)
 {
-    Q_UNUSED(skip);
-    Q_UNUSED(take);
+    Q_UNUSED(skip)
+    Q_UNUSED(take)
     QString selectText;
 
     if (fields.data.count() == 0) {
@@ -712,8 +712,8 @@ QString SqlGeneratorBase::insertCommand(const QString &tableName, const Assignme
 //                                        QList<RelationModel*> joins,
 //                                        int skip, int take)
 //{
-//    Q_UNUSED(take);
-//    Q_UNUSED(skip);
+//    Q_UNUSED(take)
+//    Q_UNUSED(skip)
 
 //    QStringList joinedOrders;
 //    QString select = agregateText(t, agregateArg);
@@ -979,9 +979,9 @@ SqlGeneratorBase::operatorString(const PhraseData::Condition &cond) const
 
 void SqlGeneratorBase::appendSkipTake(QString &sql, int skip, int take)
 {
-    Q_UNUSED(sql);
-    Q_UNUSED(skip);
-    Q_UNUSED(take);
+    Q_UNUSED(sql)
+    Q_UNUSED(skip)
+    Q_UNUSED(take)
 }
 
 QString SqlGeneratorBase::primaryKeyConstraint(const TableModel *table) const
