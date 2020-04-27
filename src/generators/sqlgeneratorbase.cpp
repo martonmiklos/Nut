@@ -162,193 +162,6 @@ QString SqlGeneratorBase::relationDeclare(const RelationModel *relation)
             .arg(relation->localColumn, relation->slaveTable->name());
 }
 
-QStringList SqlGeneratorBase::diff(const DatabaseModel &lastModel,
-                                   const DatabaseModel &newModel)
-{
-    QStringList ret;
-
-    DatabaseModel unionModel = lastModel | newModel;
-    DatabaseModel::iterator i;
-
-    for (i = unionModel.begin(); i != unionModel.end(); ++i) {
-        TableModel *oldTable = lastModel.tableByName((*i)->name());
-        TableModel *newTable = newModel.tableByName((*i)->name());
-        QStringList sql = diff(oldTable, newTable);
-        if (!sql.isEmpty())
-            ret << sql;
-
-//        QString sqlRel = diffRelation(oldTable, newTable);
-//        if (!sqlRel.isEmpty())
-//            ret << sqlRel;
-    }
-
-    return ret;
-}
-
-QString SqlGeneratorBase::diff(FieldModel *oldField, FieldModel *newField)
-{
-    QString sql = QString();
-    if (oldField && newField)
-        if (*oldField == *newField)
-            return sql;
-
-    if (!newField) {
-        sql = "DROP COLUMN " + oldField->name;
-    } else {
-        if (oldField)
-            sql = "MODIFY COLUMN ";
-        else
-            sql = "ADD COLUMN ";
-        sql.append(fieldDeclare(newField));
-    }
-    return sql;
-}
-
-QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
-{
-    if (!newTable && !oldTable)
-        return QStringList();
-
-    if (oldTable && newTable)
-        if (*oldTable == *newTable)
-            return QStringList();
-
-    if (!newTable)
-        return QStringList() << ("DROP TABLE " + oldTable->name());
-
-    QList<QString> fieldNames;
-    QList<QString> relations;
-
-    if (oldTable) {
-        foreach (FieldModel *f, oldTable->fields())
-            if (!fieldNames.contains(f->name))
-                fieldNames.append(f->name);
-        foreach (RelationModel *r, oldTable->foreignKeys())
-            if (!relations.contains(r->localColumn))
-                relations.append(r->localColumn);
-    }
-
-    foreach (FieldModel *f, newTable->fields())
-        if (!fieldNames.contains(f->name))
-            fieldNames.append(f->name);
-    foreach (RelationModel *r, newTable->foreignKeys())
-        if (!relations.contains(r->localColumn))
-            relations.append(r->localColumn);
-
-    QStringList columnSql;
-    foreach (QString fieldName, fieldNames) {
-        FieldModel *newField = newTable->field(fieldName);
-        if (oldTable) {
-            FieldModel *oldField = oldTable->field(fieldName);
-
-            QString buffer = diff(oldField, newField);
-            if (!buffer.isEmpty())
-                columnSql << buffer;
-        } else {
-            QString declare = fieldDeclare(newField);
-            if (declare.isEmpty())
-                return QStringList() << declare;
-            columnSql << declare;
-        }
-    }
-//    foreach (QString fieldName, relations) {
-//        RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
-//        if (oldTable) {
-//            RelationModel *oldRelation = oldTable->foregionKeyByField(fieldName);
-
-//            QString buffer = diff(oldRelation, newRelation);
-//            if (!buffer.isNull())
-//                columnSql << buffer;
-//        } else {
-//            columnSql << relationDeclare(newRelation);
-//        }
-//    }
-    QString sql;
-    if (oldTable) {
-        sql = QString("ALTER TABLE %1 \n%2")
-                .arg(newTable->name(), columnSql.join(",\n"));
-    } else {
-        if (!newTable->primaryKey().isNull()) {
-            QString pkCon = primaryKeyConstraint(newTable);
-            if (!pkCon.isEmpty())
-                columnSql << pkCon;
-            columnSql << constraints(newTable);
-        }
-
-        sql = QString("CREATE TABLE IF NOT EXISTS %1 \n(%2)")
-                .arg(newTable->name(), columnSql.join(",\n"));
-
-    }
-    return QStringList() << sql;
-}
-
-QStringList SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTable)
-{
-    QStringList ret;
-    if (!newTable)
-        return ret;
-
-    QList<QString> relations;
-
-    if (oldTable)
-        foreach (RelationModel *r, oldTable->foreignKeys())
-            if (!relations.contains(r->localColumn))
-                relations.append(r->localColumn);
-
-    foreach (RelationModel *r, newTable->foreignKeys())
-        if (!relations.contains(r->localColumn))
-            relations.append(r->localColumn);
-
-    QStringList columnSql;
-    foreach (QString fieldName, relations) {
-        RelationModel *newRelation = newTable->foreignKeyByField(fieldName);
-        RelationModel *oldRelation = nullptr;
-        if (oldTable)
-            oldRelation = oldTable->foreignKeyByField(fieldName);
-
-        QStringList buffer = diff(oldRelation, newRelation);
-        if (!buffer.isEmpty())
-            columnSql << buffer.at(0);
-    }
-
-    if (columnSql.count())
-        ret.append("ALTER TABLE " + newTable->name() + "\n"
-                + columnSql.join(",\n"));
-
-    return ret;
-}
-
-QStringList SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
-{
-    QStringList ret;
-    /*
-        CONSTRAINT FK_PersonOrder FOREIGN KEY (PersonID)
-            REFERENCES Persons(PersonID)
-
-        ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) REFERENCES %2(%3)
-
-        return QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
-                                 "REFERENCES %2(%3)")
-                         .arg(newRelation->localColumn)
-                         .arg(newRelation->masterTable->name())
-                         .arg(newRelation->foreignColumn);
-    */
-    if (!oldRel)
-        ret.append(QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
-                       "REFERENCES %2(%3)")
-                .arg(newRel->localColumn, newRel->masterTable->name(),
-                     newRel->foreignColumn));
-
-    if (!newRel)
-        ret.append(QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
-                       "REFERENCES %2(%3)")
-                .arg(oldRel->localColumn, oldRel->masterTable->name(),
-                     oldRel->foreignColumn));
-
-//    if (*oldRel == *newRel)
-    return ret;
-}
-
 QString SqlGeneratorBase::join(const QString &mainTable,
                                const QList<RelationModel*> &list,
                                QStringList *order)
@@ -356,21 +169,24 @@ QString SqlGeneratorBase::join(const QString &mainTable,
     QString ret = mainTable;
     QList<RelationModel*>::const_iterator i;
     for (i = list.begin(); i != list.end(); ++i) {
+        QString joinType = (*i)->isOptional ? "LEFT" : "INNER";
         if ((*i)->masterTable->name() == mainTable) {
-            ret.append(QString(" INNER JOIN %3 ON %1.%2 = %3.%4")
+            ret.append(QString(" %5 JOIN %3 ON %1.%2 = %3.%4")
                        .arg((*i)->masterTable->name(),
                             (*i)->masterTable->primaryKey(),
                             (*i)->slaveTable->name(),
-                            (*i)->localColumn));
+                            (*i)->localColumn,
+                            joinType));
 
             if (order != Q_NULLPTR)
                 order->append((*i)->slaveTable->name() + "." + (*i)->slaveTable->primaryKey());
         } else {
-            ret.append(QString(" INNER JOIN %3 ON %1.%2 = %3.%4")
+            ret.append(QString(" %5 JOIN %3 ON %1.%2 = %3.%4")
                        .arg(mainTable,
                             (*i)->localColumn,
                             (*i)->masterTable->name(),
-                            (*i)->masterTable->primaryKey()));
+                            (*i)->masterTable->primaryKey(),
+                            joinType));
 
             if (order != Q_NULLPTR)
                 order->append((*i)->masterTable->name() + "." + (*i)->masterTable->primaryKey());
@@ -407,9 +223,10 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
         RelationModel *rel = model.relationByClassNames(mainTable, clone.first());
         if (rel) {
             //mainTable is master of table
-            ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
+            ret.append(QString(" %5 JOIN [%1] ON %4.%2 = %1.%3")
                        .arg(table, rel->masterTable->primaryKey(),
-                            rel->localColumn, mainTable));
+                            rel->localColumn, mainTable,
+                            rel->isOptional ? "LEFT" : "INNER"));
 
             if (order != Q_NULLPTR)
                 order->append(mainTable + "." + rel->masterTable->primaryKey());
@@ -418,9 +235,10 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
             rel = model.relationByClassNames(clone.first(), mainTable);
             if (rel) {
                 // table is master of mainTable
-                ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
+                ret.append(QString(" %5 JOIN [%1] ON %4.%2 = %1.%3")
                            .arg(table, rel->localColumn,
-                           rel->masterTable->primaryKey(), mainTable));
+                                rel->masterTable->primaryKey(), mainTable,
+                                rel->isOptional ? "LEFT" : "INNER"));
 
                 if (order != Q_NULLPTR)
                     order->append(mainTable + "." + rel->localColumn);

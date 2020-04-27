@@ -86,6 +86,7 @@ struct RelationModel{
     QString masterClassName;
 
     QJsonObject toJson() const;
+    bool isOptional = false;
 };
 
 bool operator ==(const RelationModel &l, const RelationModel &r);
@@ -131,6 +132,7 @@ private:
     int _typeId;
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
+    bool isForeignKeyOptional(const QMetaObject *tableMetaObject, const QString &fieldName);
 };
 
 NUT_END_NAMESPACE

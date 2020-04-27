@@ -90,12 +90,6 @@ public:
 
     virtual QString relationDeclare(const RelationModel *relation);
 
-    virtual QStringList diff(const DatabaseModel &lastModel, const DatabaseModel &newModel);
-    virtual QString diff(FieldModel *oldField, FieldModel *newField);
-    virtual QStringList diff(TableModel *oldTable, TableModel *newTable);
-    virtual QStringList diffRelation(TableModel *oldTable, TableModel *newTable);
-    virtual QStringList diff(RelationModel *oldRel, RelationModel *newRel);
-
     virtual QString join(const QString &mainTable,
                          const QList<RelationModel*> &list,
                          QStringList *order = Q_NULLPTR);

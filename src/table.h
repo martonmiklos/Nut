@@ -31,9 +31,10 @@
 #include "phrase.h"
 
 
-#define NUT_FOREIGN_KEY_DECLARE(type, keytype, keyname, keywrite, name, read, write)                     \
+#define NUT_FOREIGN_KEY_DECLARE(type, keytype, keyname, keywrite, name, read, write, optional)                     \
     NUT_INFO(__nut_FIELD, keyname, 0)                                             \
     NUT_INFO(__nut_FOREIGN_KEY, keyname :: name, type)                                   \
+    NUT_INFO(__nut_FOREIGN_KEY_OPTIONAL, keyname, optional)                                   \
     Nut::Row<type> m_##name; \
     keytype m_##keyname; \
     Q_PROPERTY(Nut::Row<Table> name READ _##read WRITE _##write)                                \

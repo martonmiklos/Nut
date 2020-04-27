@@ -83,21 +83,6 @@ public:                                                                        \
         propertyChanged(#name);                                                \
     }
 
-#define NUT_FOREIGN_KEY(type, keytype, name, read, write)                     \
-    Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                      \
-    NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
-    NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
-    Nut::Row<type> m_##name;                                                   \
-public slots:                                                                        \
-    Nut::Row<type> read() const { return m_##name ; }                          \
-    Q_INVOKABLE void write(Nut::Row<type> name){                                           \
-        m_##name = name;                                                       \
-    }
-
-#define GENERATE_FOREIGN_KEY_PROPERTY(keyname, name) \
-    keyname##::##name
-
-
 #define NUT_DECLARE_CHILD_TABLE(type, n)                                       \
     private:                                                                   \
         NUT_WRAP_NAMESPACE(TableSet)<type> *m_##n;                             \

@@ -35,7 +35,6 @@ class DatabaseModel;
 class DatabasePrivate;
 class TableSetBase;
 class SqlGeneratorBase;
-class ChangeLogTable;
 class NUT_EXPORT Database : public QObject
 {
     Q_OBJECT
@@ -51,7 +50,6 @@ public:
     ~Database();
 
     bool open();
-    bool open(bool updateDatabase);
     void close();
 
     QSqlQuery exec(const QString& sql);

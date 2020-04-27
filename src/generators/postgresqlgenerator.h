@@ -36,8 +36,6 @@ public:
 
     QString fieldType(FieldModel *field) override;
 
-    QString diff(FieldModel *oldField, FieldModel *newField) override;
-
     // SqlGeneratorBase interface
 public:
     QString escapeValue(const QVariant &v) const override;

@@ -188,27 +188,6 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
     return dbType;
 }
 
-QString PostgreSqlGenerator::diff(FieldModel *oldField, FieldModel *newField)
-{
-    QString sql = QString();
-    if(oldField && newField)
-        if(*oldField == *newField)
-            return QString();
-
-    if(!newField){
-        sql = "DROP COLUMN " + oldField->name;
-    }else{
-        if(oldField){
-            sql = "ALTER COLUMN ";
-            sql.append(newField->name + " TYPE " + fieldType(newField));
-        } else {
-            sql = "ADD COLUMN ";
-            sql.append(fieldDeclare(newField));
-        }
-    }
-    return sql;
-}
-
 QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
 {
     if (v.type() == QVariant::Time)

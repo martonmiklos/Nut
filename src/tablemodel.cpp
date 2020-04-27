@@ -119,6 +119,26 @@ bool TableModel::operator !=(const TableModel &t) const
     return !(*this == t);
 }
 
+bool TableModel::isForeignKeyOptional(const QMetaObject *tableMetaObject, const QString &fieldName)
+{
+    for(int j = 0; j < tableMetaObject->classInfoCount(); j++){
+        QString type;
+        QString name;
+        QString value;
+
+        if (!nutClassInfoString(tableMetaObject->classInfo(j),
+                            type, name, value)) {
+            continue;
+        }
+
+        if (type == __nut_FOREIGN_KEY_OPTIONAL
+                && name == fieldName) {
+            return value == "true";
+        }
+    }
+    return false;
+}
+
 TableModel::TableModel(int typeId, const QString &tableName)
 {
     //TODO: check that
@@ -186,6 +206,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
             fk->localProperty = parts.at(1);
             fk->foreignColumn = value;
             fk->masterClassName = value;
+            fk->isOptional = isForeignKeyOptional(tableMetaObject, fk->localColumn);
             _foreignKeys.append(fk);
         }
 

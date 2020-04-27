@@ -18,7 +18,6 @@ HEADERS += \
     $$PWD/src/defines.h \
     $$PWD/src/query.h \
     $$PWD/src/databasemodel.h \
-    $$PWD/src/changelogtable.h \
     $$PWD/src/tablesetbase_p.h \
     $$PWD/src/querybase_p.h \
     $$PWD/src/tablemodel.h \
@@ -54,7 +53,6 @@ SOURCES += \
     $$PWD/src/query.cpp \
     $$PWD/src/databasemodel.cpp \
     $$PWD/src/tablesetbase.cpp \
-    $$PWD/src/changelogtable.cpp \
     $$PWD/src/querybase.cpp \
     $$PWD/src/tablemodel.cpp \
     $$PWD/src/table.cpp \

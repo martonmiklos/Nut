@@ -29,7 +29,6 @@
 
 NUT_BEGIN_NAMESPACE
 
-class ChangeLogTable;
 class DatabasePrivate //: public QSharedData
 {
     Database *q_ptr;
@@ -38,35 +37,31 @@ class DatabasePrivate //: public QSharedData
 public:
     explicit DatabasePrivate(Database *parent);
 
-    bool open(bool updateDatabase);
+    bool open();
 
     bool updateDatabase();
-    void createChangeLogs();
-    bool putModelToDatabase();
     DatabaseModel getLastScheema();
-    bool getCurrectScheema();
+    bool getCurrectSchema();
 
     QSqlDatabase db;
 
     QString hostName;
     QString databaseName;
-    int port;
+    int port = 0;
     QString userName;
     QString password;
     QString connectionName;
     QString driver;
 
-    SqlGeneratorBase *sqlGenertor;
+    SqlGeneratorBase *sqlGenerator = nullptr;
     DatabaseModel currentModel;
-
-    TableSet<ChangeLogTable> *changeLogs;
 
     static QMap<QString, DatabaseModel> allTableMaps;
     static qulonglong lastId;
 
     QSet<TableSetBase *> tableSets;
 
-    bool isDatabaseNew;
+    bool isDatabaseNew = false;
 
     QString errorMessage;
 };

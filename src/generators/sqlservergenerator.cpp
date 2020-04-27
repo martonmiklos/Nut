@@ -141,26 +141,6 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
     return dbType;
 }
 
-QString SqlServerGenerator::diff(FieldModel *oldField, FieldModel *newField)
-{
-    QString sql = QString();
-    if (oldField && newField)
-        if (*oldField == *newField)
-            return sql;
-
-    if (!newField) {
-        sql = "DROP COLUMN " + oldField->name;
-    } else {
-        if (oldField)
-            sql = "MODIFY COLUMN ";
-        else
-            sql = "ADD ";
-
-        sql.append(fieldDeclare(newField));
-    }
-    return sql;
-}
-
 QString SqlServerGenerator::escapeValue(const QVariant &v) const
 {
     switch (v.type()) {

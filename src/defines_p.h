@@ -46,6 +46,7 @@
 #define __nut_REMOVE            "remove"
 #define __nut_CHANGE            "change"
 #define __nut_ENUM              "enum"
+#define __nut_FOREIGN_KEY_OPTIONAL      "foreign_key_optional"
 
 #ifdef NUT_NAMESPACE
 #   define NUT_BEGIN_NAMESPACE      namespace NUT_NAMESPACE{
