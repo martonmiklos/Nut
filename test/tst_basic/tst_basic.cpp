@@ -44,7 +44,7 @@ void BasicTest::initTestCase()
     db.scores()->query()->remove();
 }
 
-void BasicTest::dataScheema()
+void BasicTest::dataSchema()
 {
 //    auto json = db.model().toJson();
 //    auto model = DatabaseModel::fromJson(json);

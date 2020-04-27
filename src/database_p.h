@@ -43,8 +43,8 @@ public:
     bool updateDatabase();
     void createChangeLogs();
     bool putModelToDatabase();
-    DatabaseModel getLastScheema();
-    bool getCurrectScheema();
+    DatabaseModel getLastSchema();
+    bool getCurrectSchema();
 
     QSqlDatabase db;
 
@@ -56,7 +56,7 @@ public:
     QString connectionName;
     QString driver;
 
-    SqlGeneratorBase *sqlGenertor;
+    SqlGeneratorBase *sqlGenerator;
     DatabaseModel currentModel;
 
     TableSet<ChangeLogTable> *changeLogs;
