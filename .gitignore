@@ -34,3 +34,9 @@ Makefile*
 *.qmlproject.user.*
 
 build
+
+.directory
+*moc_predefs.h
+test/tst*/tst*
+test/tst_generators/target_wrapper.sh
+
