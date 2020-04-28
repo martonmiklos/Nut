@@ -38,7 +38,7 @@ class DatabasePrivate //: public QSharedData
 public:
     explicit DatabasePrivate(Database *parent);
 
-    bool open(bool updateDatabase);
+    bool open(bool update);
 
     bool updateDatabase();
     void createChangeLogs();
