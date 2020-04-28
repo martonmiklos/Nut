@@ -23,7 +23,7 @@ signals:
 private slots:
     void initTestCase();
 
-    void dataScheema();
+    void dataSchema();
     void createUser();
     void createPost();
     void createPost2();

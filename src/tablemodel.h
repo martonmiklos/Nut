@@ -18,8 +18,8 @@
 **
 **************************************************************************/
 
-#ifndef TABLESCHEEMA_H
-#define TABLESCHEEMA_H
+#ifndef TABLEMODEL_H
+#define TABLEMODEL_H
 
 #include <QtCore/QVariant>
 #include <QDebug>
@@ -133,4 +133,4 @@ private:
 
 NUT_END_NAMESPACE
 
-#endif // TABLESCHEEMA_H
+#endif // TABLEMODEL_H

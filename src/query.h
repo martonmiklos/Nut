@@ -118,7 +118,7 @@ Q_OUTOFLINE_TEMPLATE QList<O> Query<T>::select(const std::function<O (const QSql
     QList<O> ret;
 
     d->joins.prepend(d->tableName);
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::SingleField, "*",
                 d->wherePhrase,
@@ -174,7 +174,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     RowList<T> returnList;
     d->select = "*";
 
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
                 d->relations, d->skip, count);
 
@@ -313,7 +313,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             QList<FieldModel*> childFields = data.table->fields();
             foreach (FieldModel *field, childFields)
                 row->setProperty(field->name.toLatin1().data(),
-                                   d->database->sqlGenertor()->unescapeValue(
+                                   d->database->sqlGenerator()->unescapeValue(
                                        field->type,
                                        q.value(data.table->name() + "." + field->name)));
 
@@ -349,7 +349,7 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
     QList<F> ret;
 
     d->joins.prepend(d->tableName);
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::SingleField, f.data->toString(),
                 d->wherePhrase,
@@ -387,7 +387,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::count()
 
     d->joins.prepend(d->tableName);
     d->select = "COUNT(*)";
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::Count,
                 QStringLiteral("*"),
@@ -406,7 +406,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(const FieldPhrase<int> &f)
     Q_D(Query);
 
     d->joins.prepend(d->tableName);
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::Max, f.data->toString(),
                 d->wherePhrase,
@@ -424,7 +424,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(const FieldPhrase<int> &f)
     Q_D(Query);
 
     d->joins.prepend(d->tableName);
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::Min, f.data->toString(),
                 d->wherePhrase,
@@ -442,7 +442,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::sum(const FieldPhrase<int> &f)
     Q_D(Query);
 
     d->joins.prepend(d->tableName);
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::Sum, f.data->toString(),
                 d->wherePhrase,
@@ -460,7 +460,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(const FieldPhrase<int> &f)
     Q_D(Query);
 
     d->joins.prepend(d->tableName);
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 SqlGeneratorBase::Average, f.data->toString(),
                 d->wherePhrase,
@@ -476,7 +476,7 @@ template<class T>
 Q_OUTOFLINE_TEMPLATE QVariant Query<T>::insert(const AssignmentPhraseList &p)
 {
     Q_D(Query);
-    d->sql = d->database->sqlGenertor()
+    d->sql = d->database->sqlGenerator()
             ->insertCommand(d->tableName, p);
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -577,7 +577,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->updateCommand(
+    d->sql = d->database->sqlGenerator()->updateCommand(
                 d->tableName,
                 ph,
                 d->wherePhrase);
@@ -594,7 +594,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::remove()
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->deleteCommand(
+    d->sql = d->database->sqlGenerator()->deleteCommand(
                 d->tableName, d->wherePhrase);
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -616,7 +616,7 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(QSqlQueryModel *model)
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 d->fieldPhrase,
                 d->wherePhrase, d->orderPhrase, d->relations,
@@ -651,7 +651,7 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->selectCommand(
+    d->sql = d->database->sqlGenerator()->selectCommand(
                 d->tableName,
                 d->fieldPhrase,
                 d->wherePhrase, d->orderPhrase, d->relations,

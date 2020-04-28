@@ -173,7 +173,7 @@ int Table::save(Database *db)
 {
     //Q_D(Table);
 
-    QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
+    QSqlQuery q = db->exec(db->sqlGenerator()->saveRecord(this, db->tableName(metaObject()->className())));
 
     auto model = db->model().tableByClassName(metaObject()->className());
     if(status() == Added && model->isPrimaryKeyAutoIncrement())

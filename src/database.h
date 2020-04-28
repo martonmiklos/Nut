@@ -70,7 +70,7 @@ public:
     DatabaseModel model() const;
     QString tableName(QString className);
 
-    SqlGeneratorBase *sqlGenertor() const;
+    SqlGeneratorBase *sqlGenerator() const;
     QSqlDatabase database();
 
 protected:
