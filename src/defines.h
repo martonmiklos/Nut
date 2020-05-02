@@ -165,7 +165,7 @@ public slots: \
 
 #define NUT_AUTO_INCREMENT(x)               NUT_INFO(__nut_AUTO_INCREMENT, x, 0)
 #define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_INFO(__nut_PRIMARY_KEY_AI, x, 0)\
-            NUT_PRIMARY_KEY(X) NUT_AUTO_INCREMENT(X)
+            NUT_PRIMARY_KEY(x) NUT_AUTO_INCREMENT(x)
 #define NUT_DISPLAY_NAME(field, name)       NUT_INFO(__nut_DISPLAY, field, name)
 #define NUT_UNIQUE(x)                       NUT_INFO(__nut_UNIQUE, x, 0)
 #define NUT_LEN(field, len)                 NUT_INFO(__nut_LEN, field, len)
