@@ -68,9 +68,11 @@ private: \
     Nut::Row<Table> class::_##read() const { return m_##name ; }                           \
     \
     void class::_##write(Nut::Row<Table> name){                                           \
-        propertyChanged(QT_STRINGIFY2(keyname));                                                \
         m_##name = qSharedPointerCast< type >( name );\
-        m_##keyname = m_##name->primaryValue().value<keytype>(); \
+        if (m_##keyname != m_##name->primaryValue().value<keytype>()) {\
+            propertyChanged(QT_STRINGIFY2(keyname));                                          \
+            m_##keyname = m_##name->primaryValue().value<keytype>(); \
+        } \
     } \
     \
     keytype class::keyname() const{                                                         \

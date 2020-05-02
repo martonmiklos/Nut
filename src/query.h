@@ -55,6 +55,16 @@ template <class T>
     Q_DECLARE_PRIVATE(Query)
 
     bool m_autoDelete;
+    // level is basically a table object which is affected by the query
+    struct LevelData{
+        QList<int> masters;
+        QList<int> slaves;
+        QList<QString> masterFields;
+        QString keyFiledname;
+        QVariant lastKeyValue;
+        TableModel *table = nullptr;
+        Row<Table> lastRow;
+    };
 
 public:
     explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
@@ -108,6 +118,9 @@ public:
 
     //debug purpose
     QString sqlCommand() const;
+
+private:
+    void fillRowProperties(Row<Table> row, LevelData &currentLevel, QSqlQuery &q);
 };
 
 template<typename T>
@@ -167,6 +180,32 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
     delete d;
 }
 
+template<class T>
+Q_OUTOFLINE_TEMPLATE void Query<T>::fillRowProperties(Row<Table> row, LevelData &currentLevel, QSqlQuery &q)
+{
+    Q_D(Query);
+    QList<FieldModel*> childFields = currentLevel.table->fields();
+    foreach (FieldModel *field, childFields) {
+        // go through all fields of the current level assign value to them
+        if (!d->fieldPhrase.data.isEmpty()) {
+            bool found = false;
+            for (auto fieldP : d->fieldPhrase.data) {
+                if (fieldP->fieldName == field->name
+                        && fieldP->className == d->className) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                continue;
+        }
+        row->setProperty(field->name.toLatin1().data(),
+                         d->database->sqlGenertor()->unescapeValue(
+                            field->type, q.value(currentLevel.table->name() + "." + field->name)
+                        ));
+    }
+}
+
 template <class T>
 Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 {
@@ -190,16 +229,6 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     foreach (RelationModel *rel, d->relations)
         relatedTables << rel->slaveTable << rel->masterTable;
 
-    // level is basically a table object which is affected by the query
-    struct LevelData{
-        QList<int> masters;
-        QList<int> slaves;
-        QList<QString> masterFields;
-        QString keyFiledname;
-        QVariant lastKeyValue;
-        TableModel *table = nullptr;
-        Row<Table> lastRow;
-    };
     QVector<LevelData> levels;
     QSet<QString> importedTables;
 
@@ -290,6 +319,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 returnList.append(dynamic_cast<T*>(table));
 #endif
                 d->tableSet->add(row);
+                fillRowProperties(row, currentLevel, q);
             } else {
                 // create row for a related table
                 Table *table;
@@ -300,7 +330,10 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                     qFatal("Could not create instance of %s",
                            qPrintable(currentLevel.table->name()));
                 row = createFrom(table);
-
+                // fill up the  fields of the related row before attaching to the parent
+                // because the parent's setter would overwrite the parent's foreign key
+                // with default initialized primary key of the current (related one)
+                fillRowProperties(row, currentLevel, q);
                 if (levels[0].lastRow) {
                     foreach (RelationModel *rel, d->relations) {
                         if (rel->slaveTable->className() == levels[0].table->className()
@@ -313,28 +346,6 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                     }
                 }
             }
-
-            QList<FieldModel*> childFields = currentLevel.table->fields();
-            foreach (FieldModel *field, childFields) {
-                // go through all fields of the current level assign value to them
-                if (!d->fieldPhrase.data.isEmpty()) {
-                    bool found = false;
-                    for (auto fieldP : d->fieldPhrase.data) {
-                        if (fieldP->fieldName == field->name
-                                && fieldP->className == d->className) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                        continue;
-                }
-                row->setProperty(field->name.toLatin1().data(), 
-                                 d->database->sqlGenertor()->unescapeValue(
-                                    field->type, q.value(currentLevel.table->name() + "." + field->name)
-                                ));
-            }
-
 
             for (int i = 0; i < currentLevel.masters.count(); ++i) {
                 int master = currentLevel.masters[i];
