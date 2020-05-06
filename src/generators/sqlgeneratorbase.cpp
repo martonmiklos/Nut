@@ -185,7 +185,7 @@ QString SqlGeneratorBase::join(const QString &mainTable,
                        .arg(mainTable,
                             (*i)->localColumn,
                             (*i)->masterTable->name(),
-                            (*i)->masterTable->primaryKey(),
+                            (*i)->foreignColumn,
                             joinType));
 
             if (order != Q_NULLPTR)

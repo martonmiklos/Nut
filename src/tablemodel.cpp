@@ -202,9 +202,10 @@ TableModel::TableModel(int typeId, const QString &tableName)
             auto *fk = new RelationModel;
             fk->slaveTable = this;
             QStringList parts = name.split("::");
-            fk->localColumn = parts.first();
+            QStringList firstParts = parts.first().split("-");
+            fk->localColumn = firstParts.first();
             fk->localProperty = parts.at(1);
-            fk->foreignColumn = value;
+            fk->foreignColumn = firstParts.at(1);
             fk->masterClassName = value;
             fk->isOptional = isForeignKeyOptional(tableMetaObject, fk->localColumn);
             _foreignKeys.append(fk);

@@ -31,9 +31,9 @@
 #include "phrase.h"
 
 
-#define NUT_FOREIGN_KEY_DECLARE(type, keytype, keyname, keywrite, name, read, write, optional)                     \
+#define NUT_FOREIGN_KEY_DECLARE(type, keytype, keyname, keywrite, name, read, write, optional, related_field_name)  \
     NUT_INFO(__nut_FIELD, keyname, 0)                                             \
-    NUT_INFO(__nut_FOREIGN_KEY, keyname :: name, type)                                   \
+    NUT_INFO(__nut_FOREIGN_KEY, keyname - related_field_name :: name, type)                                   \
     NUT_INFO(__nut_FOREIGN_KEY_OPTIONAL, keyname, optional)                                   \
     Nut::Row<type> m_##name; \
     keytype m_##keyname; \
@@ -69,10 +69,6 @@ private: \
     \
     void class::_##write(Nut::Row<Table> name){                                           \
         m_##name = qSharedPointerCast< type >( name );\
-        if (m_##keyname != m_##name->primaryValue().value<keytype>()) {\
-            propertyChanged(QT_STRINGIFY2(keyname));                                          \
-            m_##keyname = m_##name->primaryValue().value<keytype>(); \
-        } \
     } \
     \
     keytype class::keyname() const{                                                         \
