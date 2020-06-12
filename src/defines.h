@@ -136,7 +136,7 @@ inline bool nutClassInfo(const QMetaClassInfo &classInfo,
 
     type = parts[0];
     name = parts[1];
-    value = qVariantFromValue(parts[2]);
+    value = QVariant::fromValue(parts[2]);
     return true;
 }
 
