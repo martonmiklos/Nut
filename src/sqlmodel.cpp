@@ -39,8 +39,10 @@ void SqlModel::setRenderer(const std::function<QVariant (int, QVariant)> &render
     _renderer = renderer;
 }
 
-SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent) :
-    QAbstractTableModel(parent), d(new SqlModelPrivate(this)), _renderer(nullptr)
+SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent)
+    : QAbstractTableModel(parent)
+    , _renderer(nullptr)
+    , d(new SqlModelPrivate(this))
 {
     d->model = database->model()
             .tableByClassName(tableSet->childClassName());
@@ -122,7 +124,7 @@ Row<Table> SqlModel::at(const int &i) const
 
 SqlModelPrivate::SqlModelPrivate(SqlModel *parent)
 {
-
+    Q_UNUSED(parent)
 }
 
 
