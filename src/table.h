@@ -109,8 +109,9 @@ public:
         Modified,
         Deleted
     };
+    Q_ENUM(Status)
 
-    int save(Database *db);
+    int save(Database *db, bool force = false);
 
     virtual QVariant primaryValue() const = 0;
     virtual void setPrimaryValue(const QVariant &value) = 0;

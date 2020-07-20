@@ -20,7 +20,7 @@ public:
 
 
     TableModel *model;
-    int status;
+    Table::Status status;
     QSet<QString> changedProperties;
     TableSetBase *parentTableSet;
     QSet<TableSetBase*> childTableSets;
