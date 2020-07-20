@@ -51,6 +51,7 @@ public:
         Modified,
         Deleted
     };
+    Q_ENUM(Status)
 
     int save(Database *db);
 
