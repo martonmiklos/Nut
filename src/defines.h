@@ -79,8 +79,10 @@ public:                                                                        \
         return m_##name;                                                       \
     }                                                                          \
     void write(type name){                                                     \
-        m_##name = name;                                                       \
-        propertyChanged(#name);                                                \
+        if (m_##name != name || status() != FeatchedFromDB) {                  \
+            m_##name = name;                                                   \
+            propertyChanged(#name);                                            \
+        }                                                                      \
     }
 
 #define NUT_DECLARE_CHILD_TABLE(type, n)                                       \

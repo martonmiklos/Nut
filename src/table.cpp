@@ -171,21 +171,23 @@ TableSetBase *Table::childTableSet(const QString &name) const
     return Q_NULLPTR;
 }
 
-int Table::save(Database *db)
+int Table::save(Database *db, bool force)
 {
     //Q_D(Table);
+    int ret = 0;
+    if (!(status() == FeatchedFromDB && !force)) {
+        QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
 
-    QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
-
-    auto model = db->model().tableByClassName(metaObject()->className());
-    if(status() == Added && model->isPrimaryKeyAutoIncrement())
-        setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
-
+        auto model = db->model().tableByClassName(metaObject()->className());
+        if(status() == Added && model->isPrimaryKeyAutoIncrement())
+            setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
+        ret = q.numRowsAffected();
+    }
     foreach(TableSetBase *ts, d->childTableSets)
         ts->save(db);
     setStatus(FeatchedFromDB);
 
-    return q.numRowsAffected();
+    return ret;
 }
 
 Table::Status Table::status() const

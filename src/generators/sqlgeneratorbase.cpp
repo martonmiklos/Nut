@@ -99,10 +99,10 @@ QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
         return deleteRecord(t, tableName);
 
     case Table::Modified:
+    case Table::FeatchedFromDB:
         return updateRecord(t, tableName);
 
     case Table::NewCreated:
-    case Table::FeatchedFromDB:
         Q_UNREACHABLE();
     }
 
