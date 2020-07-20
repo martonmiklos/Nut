@@ -64,10 +64,10 @@
     private:
 
 //Table
-#define NUT_DECLARE_FIELD(type, name, read, write)                             \
+#define NUT_DECLARE_FIELD(type, name, read, write, initialization_value)      \
     Q_PROPERTY(type name READ read WRITE write)                                \
     NUT_INFO(__nut_FIELD, name, 0)                                             \
-    type m_##name;                                                             \
+    type m_##name = initialization_value;                                      \
 public:                                                                        \
     static NUT_WRAP_NAMESPACE(FieldPhrase<type>)& name ## Field(){             \
         static NUT_WRAP_NAMESPACE(FieldPhrase<type>) f =                       \
@@ -79,7 +79,8 @@ public:                                                                        \
         return m_##name;                                                       \
     }                                                                          \
     void write(type name){                                                     \
-        if (m_##name != name || status() != FeatchedFromDB) {                  \
+        if (m_##name != name  \
+            || status() == NewCreated) {                  \
             m_##name = name;                                                   \
             propertyChanged(#name);                                            \
         }                                                                      \

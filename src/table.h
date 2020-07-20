@@ -36,7 +36,7 @@
     NUT_INFO(__nut_FOREIGN_KEY, keyname - related_field_name :: name, type)                                   \
     NUT_INFO(__nut_FOREIGN_KEY_OPTIONAL, keyname, optional)                                   \
     Nut::Row<type> m_##name; \
-    keytype m_##keyname; \
+    keytype m_##keyname = -1; \
     Q_PROPERTY(Nut::Row<Table> name READ _##read WRITE _##write)                                \
     Q_PROPERTY(keytype keyname READ keyname WRITE keywrite)                                \
 public:                                                                        \
@@ -78,10 +78,11 @@ private: \
     }                                                                          \
     \
     void class::keywrite(keytype keyname){                                                     \
-        propertyChanged(QT_STRINGIFY2(keyname));                                                \
-        m_##keyname = keyname;                                                       \
-        m_##name = nullptr; \
-        propertyChanged(QT_STRINGIFY2(keyname));                                                \
+        if (m_##keyname != keyname) {                  \
+            m_##keyname = keyname;                                                   \
+            m_##name = nullptr;                                                      \
+            propertyChanged(QT_STRINGIFY2(keyname));                                 \
+        } \
     }
 
 
