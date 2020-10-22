@@ -289,7 +289,6 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
               .arg(tableName, changedPropertiesText, values.join(", "));
 
     removeTableNames(sql);
-    qWarning() << sql;
     return sql;
 }
 
