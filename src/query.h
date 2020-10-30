@@ -189,7 +189,7 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::fillRowProperties(Row<Table> row, LevelData 
         // go through all fields of the current level assign value to them
         if (!d->fieldPhrase.data.isEmpty()) {
             bool found = false;
-            for (auto fieldP : d->fieldPhrase.data) {
+            for (const auto fieldP : qAsConst(d->fieldPhrase.data)) {
                 if (fieldP->fieldName == field->name
                         && fieldP->className == d->className) {
                     found = true;
