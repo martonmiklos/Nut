@@ -80,7 +80,8 @@ public:                                                                        \
     }                                                                          \
     void write(type name){                                                     \
         if (m_##name != name  \
-            || status() == NewCreated) {                  \
+            || status() == NewCreated \
+            || status() == Added) {                  \
             m_##name = name;                                                   \
             propertyChanged(#name);                                            \
         }                                                                      \
