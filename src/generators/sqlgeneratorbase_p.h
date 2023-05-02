@@ -109,6 +109,7 @@ public:
                                   const PhraseList &fields,
                                   const ConditionalPhrase &where,
                                   const PhraseList &order,
+                                  const PhraseList &groupBy,
                                   const QList<RelationModel *> &joins,
                                   const int skip = -1,
                                   const int take = -1);
@@ -149,6 +150,7 @@ protected:
     virtual QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);
     QString createOrderPhrase(const PhraseList &ph);
+    QString createGroupByPhrase(const PhraseList &ph);
     void createInsertPhrase(const AssignmentPhraseList &ph, QString &fields, QString &values);
 
     QString agregateText(const AgregateType &t, const QString &arg = QString()) const;

@@ -87,6 +87,7 @@ public:
     Query<T> *take(int n);
     Query<T> *fields(const PhraseList &ph);
     Query<T> *orderBy(const PhraseList &ph);
+    Query<T> *groupBy(const PhraseList &ph);
     Query<T> *where(const ConditionalPhrase &ph);
     Query<T> *setWhere(const ConditionalPhrase &ph);
 
@@ -215,7 +216,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     d->select = "*";
 
     d->sql = d->database->sqlGenertor()->selectCommand(
-                d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
+                d->tableName, d->fieldPhrase, d->wherePhrase, d->groupByPhrase, d->orderPhrase,
                 d->relations, d->skip, d->take);
     //qWarning() << d->sql.replace("\\\"", "\"");
     QSqlQuery q = d->database->exec(d->sql);
@@ -603,6 +604,15 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(const PhraseList &ph)
 }
 
 template <class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::groupBy(const PhraseList &ph)
+{
+    Q_D(Query);
+    d->groupByPhrase = ph;
+    return this;
+}
+
+
+template <class T>
 Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
 {
     Q_D(Query);
@@ -649,7 +659,10 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(QSqlQueryModel *model)
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName,
                 d->fieldPhrase,
-                d->wherePhrase, d->orderPhrase, d->relations,
+                d->wherePhrase,
+                d->groupByPhrase,
+                d->orderPhrase,
+                d->relations,
                 d->skip, d->take);
 
     DatabaseModel dbModel = d->database->model();
@@ -684,7 +697,10 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName,
                 d->fieldPhrase,
-                d->wherePhrase, d->orderPhrase, d->relations,
+                d->wherePhrase,
+                d->orderPhrase,
+                d->groupByPhrase,
+                d->relations,
                 d->skip, d->take);
 
     model->setTable(toList());

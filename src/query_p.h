@@ -51,7 +51,7 @@ public:
     QList<RelationModel*> relations;
     int skip;
     int take;
-    PhraseList orderPhrase, fieldPhrase;
+    PhraseList orderPhrase, fieldPhrase, groupByPhrase;
     ConditionalPhrase wherePhrase;
 };
 

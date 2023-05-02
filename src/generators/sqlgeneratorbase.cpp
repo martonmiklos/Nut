@@ -415,6 +415,7 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
                                         const PhraseList &fields,
                                         const ConditionalPhrase &where,
                                         const PhraseList &order,
+                                        const PhraseList &groupBy,
                                         const QList<RelationModel*> &joins,
                                         const int skip,
                                         const int take)
@@ -442,9 +443,13 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
     QStringList joinedOrders;
     QString orderText = createOrderPhrase(order);
     QString whereText = createConditionalPhrase(where.data);
+    QString groupByText = createGroupByPhrase(groupBy);
     QString fromText = join(tableName, joins, &joinedOrders);
 
     QString sql = "SELECT " + selectText + " FROM " + fromText;
+
+    if (!groupByText.isEmpty())
+        sql.append(" GROUP BY " + groupByText);
 
     if (whereText != "")
         sql.append(" WHERE " + whereText);
@@ -932,6 +937,18 @@ QString SqlGeneratorBase::createOrderPhrase(const PhraseList &ph)
         ret.append(d->toString());
         if (d->isNot)
             ret.append(" DESC");
+    }
+
+    return ret;
+}
+
+QString SqlGeneratorBase::createGroupByPhrase(const PhraseList &ph)
+{
+    QString ret = QString();
+    foreach (const PhraseData *d, ph.data) {
+        if (ret != "")
+            ret.append(", ");
+        ret.append(d->toString());
     }
 
     return ret;
