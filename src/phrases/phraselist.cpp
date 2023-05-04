@@ -37,6 +37,7 @@ PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 PhraseList::PhraseList(PhraseList &&other)
 {
     data = other.data;
+    isValid = other.isValid;
 }
 
 PhraseList::PhraseList(const AbstractFieldPhrase &other) : isValid(true)

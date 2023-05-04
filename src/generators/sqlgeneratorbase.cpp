@@ -448,11 +448,11 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
 
     QString sql = "SELECT " + selectText + " FROM " + fromText;
 
-    if (!groupByText.isEmpty())
-        sql.append(" GROUP BY " + groupByText);
-
     if (whereText != "")
         sql.append(" WHERE " + whereText);
+
+    if (!groupByText.isEmpty())
+        sql.append(" GROUP BY " + groupByText);
 
     if (orderText != "")
         sql.append(" ORDER BY " + orderText);
