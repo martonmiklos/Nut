@@ -414,8 +414,8 @@ QString SqlGeneratorBase::deleteRecords(const QString &tableName, const QString 
 QString SqlGeneratorBase::selectCommand(const QString &tableName,
                                         const PhraseList &fields,
                                         const ConditionalPhrase &where,
-                                        const PhraseList &order,
                                         const PhraseList &groupBy,
+                                        const PhraseList &order,
                                         const QList<RelationModel*> &joins,
                                         const int skip,
                                         const int take)

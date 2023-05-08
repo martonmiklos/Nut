@@ -698,8 +698,8 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
                 d->tableName,
                 d->fieldPhrase,
                 d->wherePhrase,
-                d->orderPhrase,
                 d->groupByPhrase,
+                d->orderPhrase,
                 d->relations,
                 d->skip, d->take);
 

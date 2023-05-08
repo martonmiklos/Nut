@@ -108,8 +108,8 @@ public:
     virtual QString selectCommand(const QString &tableName,
                                   const PhraseList &fields,
                                   const ConditionalPhrase &where,
-                                  const PhraseList &order,
                                   const PhraseList &groupBy,
+                                  const PhraseList &order,
                                   const QList<RelationModel *> &joins,
                                   const int skip = -1,
                                   const int take = -1);
