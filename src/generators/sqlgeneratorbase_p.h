@@ -118,6 +118,7 @@ public:
                                   const AgregateType &t,
                                   const QString &agregateArg,
                                   const ConditionalPhrase &where,
+                                  const PhraseList &groupBy,
                                   const QList<RelationModel *> &joins,
                                   const int skip = -1,
                                   const int take = -1);

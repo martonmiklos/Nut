@@ -471,6 +471,7 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
                                         const SqlGeneratorBase::AgregateType &t,
                                         const QString &agregateArg,
                                         const ConditionalPhrase &where,
+                                        const PhraseList &groupBy,
                                         const QList<RelationModel *> &joins,
                                         const int skip,
                                         const int take)
@@ -480,12 +481,16 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
     QStringList joinedOrders;
     QString selectText = agregateText(t, agregateArg);
     QString whereText = createConditionalPhrase(where.data);
+    QString groupByText = createGroupByPhrase(groupBy);
     QString fromText = join(tableName, joins, &joinedOrders);
 
     QString sql = "SELECT " + selectText + " FROM " + fromText;
 
     if (whereText != "")
         sql.append(" WHERE " + whereText);
+
+    if (!groupByText.isEmpty())
+        sql.append(" GROUP BY " + groupByText);
 
     for (int i = 0; i < _database->model().count(); i++)
         sql = sql.replace(_database->model().at(i)->className() + ".",
