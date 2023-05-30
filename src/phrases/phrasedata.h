@@ -85,19 +85,19 @@ public:
 
     enum Type { Field, WithVariant, WithOther, WithoutOperand };
 
-    const char *className;
-    const char *fieldName;
+    const char *className = nullptr;
+    const char *fieldName = nullptr;
 
     Type type;
 
     Condition operatorCond;
 
-    PhraseData *left;
-    PhraseData *right;
+    PhraseData *left = nullptr;
+    PhraseData *right = nullptr;
 
-    QVariant operand;
-    bool isNot;
-    quint16 parents;
+    QVariant operand = QVariant::Invalid;
+    bool isNot = false;
+    quint16 parents = 1;
 
     PhraseData();
     PhraseData(const char *className, const char *fieldName);
