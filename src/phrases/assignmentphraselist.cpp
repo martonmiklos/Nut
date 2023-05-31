@@ -24,7 +24,6 @@
 
 NUT_BEGIN_NAMESPACE
 
-
 AssignmentPhraseList AssignmentPhrase::operator &(const AssignmentPhrase &other)
 {
     return AssignmentPhraseList(this, &other);
@@ -68,18 +67,13 @@ AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase
 
 AssignmentPhraseList::~AssignmentPhraseList()
 {
-    foreach (PhraseData *d, data)
-        if (!--d->parents)
-            delete d;
-//    qDeleteAll(data);
-    //    data.clear();
 }
 
 void AssignmentPhraseList::incAllDataParents()
 {
-    foreach (PhraseData *d, data)
-        d->parents++;
+    for (auto &d: data)
+        d->ref.ref();
 }
 
-
 NUT_END_NAMESPACE
+

@@ -47,7 +47,7 @@ public:
     ConditionalPhrase in(QList<T> list)
     {
         QVariantList vlist;
-        foreach (T t, list)
+        for (auto &t: list)
             vlist.append(QVariant::fromValue(t));
 
         return ConditionalPhrase(this, PhraseData::In, vlist);
@@ -81,6 +81,9 @@ public:
     AssignmentPhrase operator =(const QVariant &other);
     AssignmentPhrase operator =(const ConditionalPhrase &other);
     AssignmentPhrase operator <<(const QVariant &other);
+
+protected:
+    void detach();
 };
 
 NUT_END_NAMESPACE

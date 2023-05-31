@@ -26,7 +26,7 @@ NUT_BEGIN_NAMESPACE
 
 AssignmentPhrase::AssignmentPhrase(PhraseData *d) : data(d)
 {
-    d->parents++;
+    d->ref.ref();
 }
 
 AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const QVariant r)
@@ -56,9 +56,8 @@ AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *ph, const QVariant &v)
 
 AssignmentPhrase::~AssignmentPhrase()
 {
-    if (data)
-        if (!--data->parents)
-            delete data;
+    if (data && data->ref.deref())
+        delete data;
 }
 
 NUT_END_NAMESPACE

@@ -37,14 +37,14 @@ PhraseDataList::PhraseDataList(const PhraseDataList &other) : QList<PhraseData*>
 
 void PhraseDataList::append(PhraseData *d)
 {
-    d->parents++;
+    d->ref.ref();
     QList<PhraseData*>::append(d);
 }
 
 void PhraseDataList::append(QList<PhraseData *> &dl)
 {
-    foreach (PhraseData *d, dl)
-        d->parents++;
+    for (auto &d: dl)
+        d->ref.ref();
     QList<PhraseData*>::append(dl);
 }
 
@@ -53,9 +53,10 @@ PhraseDataList::~PhraseDataList()
     QList<PhraseData*>::iterator i;
     for (i = begin(); i != end(); ++i) {
         (*i)->cleanUp();
-        if (!--(*i)->parents)
+        if (!(*i)->ref.deref())
             delete *i;
     }
 }
 
 NUT_END_NAMESPACE
+

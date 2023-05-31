@@ -17,7 +17,7 @@ public:
     QString tableName;
 
     RowList<Table> rows;
-    TableModel *model;
+    TableModel *model = nullptr;
 };
 
 NUT_END_NAMESPACE

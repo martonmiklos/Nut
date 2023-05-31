@@ -22,54 +22,88 @@
 
 NUT_BEGIN_NAMESPACE
 
-PhraseData::PhraseData() :
-    className(""), fieldName(""),
-    type(Field), operatorCond(NotAssign)
+PhraseData::PhraseData()
+    : className(""), fieldName(""), type(Field), operatorCond(NotAssign),
+      left(nullptr), right(nullptr), operand(), isNot(false),
+      ref(1)
 { }
 
-PhraseData::PhraseData(const char *className, const char *fieldName) :
-    className(className), fieldName(fieldName),
-    type(Field), operatorCond(NotAssign),
-    left(nullptr), right(nullptr)
+PhraseData::PhraseData(const char *className, const char *fieldName)
+    : className(className), fieldName(fieldName), type(Field),
+      operatorCond(NotAssign), left(nullptr), right(nullptr),
+      operand(), isNot(false), ref(1)
 { }
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o)
-    : type(WithoutOperand), operatorCond(o), left(l)
+    : className(nullptr), fieldName(nullptr), type(WithoutOperand),
+      operatorCond(o), left(l), right(nullptr), isNot(false), ref(1)
 {
-    l->parents++;
+    l->ref.ref();
 }
 
-PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o,
-                       PhraseData *r)
-    : type(WithOther), operatorCond(o), left(l), right(r)
+PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, PhraseData *r)
+    : className(nullptr), fieldName(nullptr), type(WithOther), operatorCond(o),
+      left(l), right(r), isNot(false), ref(1)
 {
-    l->parents++;
-    r->parents++;
+    l->ref.ref();
+    r->ref.ref();
 }
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, QVariant r)
-    : type(WithVariant), operatorCond(o), left(l), operand(r)
+    : className(nullptr), fieldName(nullptr), type(WithVariant),
+      operatorCond(o), left(l), right(nullptr), operand(r), isNot(false),
+      ref(1)
 { }
+
+PhraseData::~PhraseData()
+{
+//    if (left && !left->ref.deref())
+//        delete left;
+
+//    if (right && !right->ref.deref())
+//        delete right;
+}
 
 PhraseData *PhraseData::operator =(PhraseData *other)
 {
-    other->parents++;
+    other->ref.ref();
     return other;
 }
 
 PhraseData &PhraseData::operator =(PhraseData &other)
 {
-    other.parents++;
+    other.ref.ref();
     return other;
 }
 
 QString PhraseData::toString() const
 {
-    return QString("[%1].%2").arg(className, fieldName);
+    return QStringLiteral("[%1].%2")
+        .arg(QString::fromUtf8(className), QString::fromUtf8(fieldName));
 }
 
 void PhraseData::cleanUp()
 {
+}
+
+PhraseData *PhraseData::clone() const
+{
+    auto c = new PhraseData;
+    c->className = className;
+    c->fieldName = fieldName;
+
+    c->type = type;
+
+    c->operatorCond = operatorCond;
+
+    c->left = left;
+    c->right = right;
+
+    c->operand = operand;
+    c->isNot = isNot;
+//    c->parents = parents;
+
+    return c;
 }
 
 void PhraseData::cleanUp(PhraseData *d)

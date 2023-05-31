@@ -18,6 +18,8 @@
 **
 **************************************************************************/
 
+#include <QDebug>
+
 #include "abstractfieldphrase.h"
 #include "conditionalphrase.h"
 #include "phrasedata.h"
@@ -30,21 +32,21 @@ ConditionalPhrase::ConditionalPhrase() : data(nullptr)
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
 {
     data = other.data;
-    data->parents++;
-//    const_cast<ConditionalPhrase&>(other).data = 0;
+    data->ref.ref();
 }
 
 #ifdef Q_COMPILER_RVALUE_REFS
-ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &&other)
+ConditionalPhrase::ConditionalPhrase(ConditionalPhrase &&other)
 {
-    this->data = qMove(other.data);
+    data = other.data;
+    other.data = nullptr;
 }
 #endif
 
 ConditionalPhrase::ConditionalPhrase(const PhraseData *data)
 {
-    this->data = const_cast<PhraseData*>(data);
-    this->data->parents++;
+    data = const_cast<PhraseData*>(data);
+    data->ref.ref();
 }
 
 ConditionalPhrase::ConditionalPhrase(AbstractFieldPhrase *l,
@@ -104,8 +106,10 @@ ConditionalPhrase::~ConditionalPhrase()
 {
     if (data) {
         data->cleanUp();
-        if (!--data->parents)
+        if (!data->ref.deref()) {
+//            qDebug() << "deleted for cond";
             delete data;
+        }
     }
 }
 
@@ -113,7 +117,7 @@ ConditionalPhrase &ConditionalPhrase::operator =(const ConditionalPhrase &other)
 {
     data = other.data;
     if (data)
-        data->parents++;
+        data->ref.ref();
     return *this;
 }
 
@@ -121,23 +125,6 @@ ConditionalPhrase ConditionalPhrase::operator ==(const QVariant &other)
 {
     return ConditionalPhrase(this, PhraseData::Equal, other);
 }
-
-//ConditionalPhrase ConditionalPhrase::operator ==(const AbstractFieldPhrase &other)
-//{
-//    return ConditionalPhrase(this, PhraseData::Equal, other);
-//}
-
-//ConditionalPhrase ConditionalPhrase::operator &&(const ConditionalPhrase &other)
-//{
-//    return ConditionalPhrase(this, PhraseData::And,
-//                             const_cast<ConditionalPhrase&>(other));
-//}
-
-//ConditionalPhrase ConditionalPhrase::operator ||(const ConditionalPhrase &other)
-//{
-//    return ConditionalPhrase(this, PhraseData::Or,
-//                             const_cast<ConditionalPhrase&>(other));
-//}
 
 #define DECLARE_CONDITIONALPHRASE_OPERATORS_IMPL(op, cond) \
 ConditionalPhrase operator op(const ConditionalPhrase &l, \
@@ -149,8 +136,8 @@ ConditionalPhrase operator op(const ConditionalPhrase &l, \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
-    l.data->parents++;  \
-    r.data->parents++;  \
+    l.data->ref.ref();  \
+    r.data->ref.ref();  \
     return p; \
 } \
 ConditionalPhrase operator op(const ConditionalPhrase &l, \
@@ -162,8 +149,8 @@ ConditionalPhrase operator op(const ConditionalPhrase &l, \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
-    l.data->parents++;  \
-    r.data->parents++;  \
+    l.data->ref.ref();  \
+    r.data = nullptr;  \
     return p; \
 } \
 ConditionalPhrase operator op(ConditionalPhrase &&l, \
@@ -175,8 +162,8 @@ ConditionalPhrase operator op(ConditionalPhrase &&l, \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
-    l.data->parents++;  \
-    r.data->parents++;  \
+    r.data->ref.ref();  \
+    l.data = nullptr;  \
     return p; \
 } \
 ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
@@ -187,8 +174,8 @@ ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
-    l.data->parents++;  \
-    r.data->parents++;  \
+    l.data = nullptr; \
+    r.data = nullptr; \
     return p; \
 }
 
@@ -198,8 +185,9 @@ DECLARE_CONDITIONALPHRASE_OPERATORS_IMPL(&&, PhraseData::And)
 
 ConditionalPhrase ConditionalPhrase::operator !()
 {
-    ConditionalPhrase f(data);
-    f.data->isNot = !data->isNot;
+    ConditionalPhrase f;
+    f.data = data->clone();
+    f.data->isNot = !f.data->isNot;
     return f;
 }
 

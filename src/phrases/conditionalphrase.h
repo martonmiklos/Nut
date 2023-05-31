@@ -23,6 +23,7 @@
 
 #include "phrasedata.h"
 
+
 NUT_BEGIN_NAMESPACE
 
 class PhraseData;
@@ -33,6 +34,7 @@ ConditionalPhrase operator op(const QVariant &other) \
 { \
     return ConditionalPhrase(this, cond, other); \
 }
+
 class NUT_EXPORT ConditionalPhrase
 {
 public:
@@ -42,7 +44,7 @@ public:
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
 #ifdef Q_COMPILER_RVALUE_REFS
-    ConditionalPhrase(const ConditionalPhrase &&other);
+    ConditionalPhrase(ConditionalPhrase &&other);
 #endif
     explicit ConditionalPhrase(const PhraseData *data);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition);
@@ -69,25 +71,24 @@ public:
 
 
 #define DECLARE_CONDITIONALPHRASE_OPERATORS(op) \
-ConditionalPhrase operator op(const ConditionalPhrase &l, const ConditionalPhrase &r); \
-ConditionalPhrase operator op(const ConditionalPhrase &l, ConditionalPhrase &&r); \
-ConditionalPhrase operator op(ConditionalPhrase &&l, const ConditionalPhrase &r); \
-ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r);
+    ConditionalPhrase NUT_EXPORT operator op(const ConditionalPhrase &l, const ConditionalPhrase &r); \
+    ConditionalPhrase NUT_EXPORT operator op(const ConditionalPhrase &l, ConditionalPhrase &&r); \
+    ConditionalPhrase NUT_EXPORT operator op(ConditionalPhrase &&l, const ConditionalPhrase &r); \
+    ConditionalPhrase NUT_EXPORT operator op(ConditionalPhrase &&l, ConditionalPhrase &&r);
 
 DECLARE_CONDITIONALPHRASE_OPERATORS(==)
 DECLARE_CONDITIONALPHRASE_OPERATORS(&&)
 DECLARE_CONDITIONALPHRASE_OPERATORS(||)
 
-ConditionalPhrase operator <(AbstractFieldPhrase &l, ConditionalPhrase &&r);
-ConditionalPhrase operator <=(AbstractFieldPhrase &l, ConditionalPhrase &&r);
-ConditionalPhrase operator >(AbstractFieldPhrase &l, ConditionalPhrase &&r);
-ConditionalPhrase operator >=(AbstractFieldPhrase &l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator <(AbstractFieldPhrase &l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator <=(AbstractFieldPhrase &l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator >(AbstractFieldPhrase &l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator >=(AbstractFieldPhrase &l, ConditionalPhrase &&r);
 
-ConditionalPhrase operator <(ConditionalPhrase &&l, ConditionalPhrase &&r);
-ConditionalPhrase operator <=(ConditionalPhrase &&l, ConditionalPhrase &&r);
-ConditionalPhrase operator >(ConditionalPhrase &&l, ConditionalPhrase &&r);
-ConditionalPhrase operator >=(ConditionalPhrase &&l, ConditionalPhrase &&r);
-
+ConditionalPhrase NUT_EXPORT operator <(ConditionalPhrase &&l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator <=(ConditionalPhrase &&l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator >(ConditionalPhrase &&l, ConditionalPhrase &&r);
+ConditionalPhrase NUT_EXPORT operator >=(ConditionalPhrase &&l, ConditionalPhrase &&r);
 
 NUT_END_NAMESPACE
 

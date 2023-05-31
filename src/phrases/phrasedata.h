@@ -78,43 +78,45 @@ public:
         DatePartHour,
         DatePartMinute,
         DatePartSecond,
-        DatePartMilisecond
+        DatePartMilisecond,
+        DatePartDayOfWeek
 //        // special types
 //        Distance
     };
 
     enum Type { Field, WithVariant, WithOther, WithoutOperand };
 
-    const char *className = nullptr;
-    const char *fieldName = nullptr;
+    const char *className;
+    const char *fieldName;
 
     Type type;
 
     Condition operatorCond;
 
-    PhraseData *left = nullptr;
-    PhraseData *right = nullptr;
+    PhraseData *left;
+    PhraseData *right;
 
-    QVariant operand = QVariant::Invalid;
-    bool isNot = false;
-    quint16 parents = 1;
+    QVariant operand;
+    bool isNot;
+//    quint16 parents;
+
+    mutable QAtomicInt ref;
 
     PhraseData();
     PhraseData(const char *className, const char *fieldName);
     PhraseData(PhraseData *l, Condition o);
     PhraseData(PhraseData *l, Condition o, PhraseData *r);
     PhraseData(PhraseData *l, Condition o, QVariant r);
-//    explicit PhraseData(const PhraseData &other);
-//    explicit PhraseData(const PhraseData *other);
+
+    virtual ~PhraseData();
 
     PhraseData *operator =(PhraseData *other);
     PhraseData &operator =(PhraseData &other);
 
     QString toString() const;
 
-    ~PhraseData() = default;
-
     void cleanUp();
+    PhraseData *clone() const;
 private:
     void cleanUp(PhraseData *d);
 };
