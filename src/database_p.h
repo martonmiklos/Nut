@@ -63,7 +63,7 @@ public:
 
     bool isDatabaseNew = false;
 
-    QString errorMessage;
+    QString errorMessage, connectionOptions;
 };
 
 NUT_END_NAMESPACE

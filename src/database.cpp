@@ -67,6 +67,8 @@ bool DatabasePrivate::open()
                      + QString::number(DatabasePrivate::lastId);
 
     db = QSqlDatabase::addDatabase(driver, connectionName);
+    if (!connectionOptions.isEmpty())
+        db.setConnectOptions(connectionOptions);
     db.setHostName(hostName);
     if (port)
         db.setPort(port);
@@ -318,6 +320,12 @@ void Database::setDriver(QString driver)
 {
     Q_D(Database);
     d->driver = driver.toUpper();
+}
+
+void Database::setConnectionOptions(const QString &options)
+{
+    Q_D(Database);
+    d->connectionOptions = options;
 }
 
 SqlGeneratorBase *Database::sqlGenertor() const

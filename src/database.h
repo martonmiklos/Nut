@@ -84,10 +84,10 @@ public slots:
     void setPassword(QString password);
     void setConnectionName(QString connectionName);
     void setDriver(QString driver);
+    void setConnectionOptions(const QString &options);
 
 private:
     void add(TableSetBase *);
-
     friend class TableSetBase;
 };
 
